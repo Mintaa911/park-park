@@ -1,10 +1,10 @@
 import { ParkingLot, PickerFile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { QrCode, ImageIcon, Star, Phone, MapPin, Clock, Upload } from "lucide-react";
+import { ImageIcon, Star, Phone, MapPin, Clock, Upload } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -13,8 +13,6 @@ import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { formatTime, getImageUrl } from "@/lib/utils";
-import LotQrCode from "@/components/generate-qr-code";
-import QRCode from 'react-qr-code';
 import GenerateQrCode from "@/components/generate-qr-code";
 
 // Zod schema for form validation
@@ -52,7 +50,7 @@ export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
     },
   });
 
-  const onSubmit = async (data: UploadImagesFormData) => {
+  const onSubmit = async () => {
     setIsSubmitting(true);
 
     try {      
@@ -165,7 +163,7 @@ export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
             </Dialog>
           </div>
           <div className="flex flex-wrap gap-2">
-            {selectedLot.images.map((image, index) => (
+            {selectedLot.images.map((image: string, index: number) => (
               <img
                 key={index}
                 src={getImageUrl(`lots/${image}`)}
@@ -224,7 +222,7 @@ export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
           <div>
             <h4 className="font-semibold text-gray-900 mb-3">Amenities</h4>
             <div className="flex flex-wrap gap-2">
-              {selectedLot.amenities.map((amenity, index) => (
+              {selectedLot.amenities.map((amenity: string, index: number) => (
                 <Badge key={index} variant="secondary" className="px-3 py-1">
                   {amenity}
                 </Badge>

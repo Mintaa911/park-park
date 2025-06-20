@@ -5,7 +5,6 @@ import { getUser } from '@/lib/supabase/queries/user';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
-import { prefetchQuery } from '@supabase-cache-helpers/postgrest-react-query'
 
 
 export default async function DashboardLayout({

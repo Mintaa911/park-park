@@ -1,4 +1,4 @@
-import { TypedSupabaseClient, UserRole } from "../../../types";
+import { TypedSupabaseClient } from "@/types";
 
 
 export async function getUser(client: TypedSupabaseClient) {

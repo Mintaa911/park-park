@@ -5,21 +5,14 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import { 
   Home,
   Car,
-  Calendar,
-  Users,
-  CreditCard,
   BarChart3,
   Settings,
   User,
   LogOut,
   ChevronDown,
-  Clock,
-  DollarSign,
-  Shield,
   HelpCircle,
   FileText,
 } from 'lucide-react';
@@ -98,7 +91,7 @@ const sidebarItems: SidebarItem[] = [
   ];
 
 export default function SidebarContent() {
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [, setSidebarOpen] = useState(false);
     const [expandedItems, setExpandedItems] = useState<string[]>([]);
     const pathname = usePathname();
     const { signOut } = useAuth();

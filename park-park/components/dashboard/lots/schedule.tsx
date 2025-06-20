@@ -2,8 +2,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Clock, DollarSign, Car, Edit, Trash2, Calendar } from "lucide-react";
+import { Clock, Edit, Trash2, Calendar } from "lucide-react";
 import { ParkingLot } from "@/types";
 import { useInsertMutation, useQuery } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";

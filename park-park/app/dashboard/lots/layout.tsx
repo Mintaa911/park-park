@@ -1,4 +1,3 @@
-import { createClient } from "@/lib/supabase/server";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 
 export default async function LotsLayout({
