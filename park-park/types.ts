@@ -16,6 +16,7 @@ export enum LotStatus {
 }
 
 export type ParkingLot = Tables<'lots'>;
+export type ParkingSchedule = Tables<'schedules'>;
 
 export interface PickerFile extends File {
     preview: string;

@@ -26,6 +26,7 @@ export type Database = {
           open: string | null
           phone: string
           qr_image: string
+          slug: string
           space_count: number
           status: Database["public"]["Enums"]["lot_status"]
           supervisors: string[]
@@ -46,6 +47,7 @@ export type Database = {
           open?: string | null
           phone: string
           qr_image?: string
+          slug?: string
           space_count: number
           status?: Database["public"]["Enums"]["lot_status"]
           supervisors: string[]
@@ -66,6 +68,7 @@ export type Database = {
           open?: string | null
           phone?: string
           qr_image?: string
+          slug?: string
           space_count?: number
           status?: Database["public"]["Enums"]["lot_status"]
           supervisors?: string[]
@@ -141,6 +144,7 @@ export type Database = {
           name: string
           price: number
           schedule_id: string
+          slug: string
         }
         Insert: {
           created_at?: string
@@ -150,6 +154,7 @@ export type Database = {
           name: string
           price: number
           schedule_id?: string
+          slug?: string
         }
         Update: {
           created_at?: string
@@ -159,6 +164,7 @@ export type Database = {
           name?: string
           price?: number
           schedule_id?: string
+          slug?: string
         }
         Relationships: [
           {

@@ -47,7 +47,7 @@ export default function GenerateQrCode({ selectedLot }: QrCodeProps) {
         document.body.appendChild(tempDiv);
         
         // Create QR code component
-        const qrValue = `${frontendBaseUrl}/dashboard/lots/${selectedLot.lot_id}`;
+        const qrValue = `${frontendBaseUrl}/${selectedLot.slug}`;
         const qrElement = document.createElement('div');
         tempDiv.appendChild(qrElement);
         

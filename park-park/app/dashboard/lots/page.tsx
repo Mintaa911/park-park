@@ -80,13 +80,13 @@ export default function ParkingLotsPage() {
     <div className="min-h-screen p-6">
       <div className="space-y-4">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 mb-2">Parking Lots Management</h1>
+          <h1 className="text-xl md:text-4xl font-bold text-gray-900 mb-2">Parking Lots Management</h1>
           <p className="text-gray-600">Comprehensive management of your parking facilities</p>
         </div>
 
         <Card className="shadow-lg border-0">
           <CardContent className="px-6 py-4">
-            <div className="flex justify-between sm:flex-row items-center">
+            <div className="flex flex-col md:flex-row md:justify-between sm:flex-row md:items-center gap-2">
               <div className="flex-1">
                 <Label htmlFor="lot-select">Choose Parking Lot</Label>
                 <Select value={selectedLot?.lot_id} onValueChange={(value) => setSelectedLot(lots.find(lot => lot.lot_id === value) ?? null)}>
@@ -137,23 +137,23 @@ export default function ParkingLotsPage() {
                 <TabsList className="grid w-full grid-cols-5 bg-gray-50 rounded-none">
                   <TabsTrigger value="overview" className="flex items-center gap-2">
                     <Activity className="w-4 h-4" />
-                    Overview
+                    <span className="hidden md:block">Overview</span>
                   </TabsTrigger>
                   <TabsTrigger value="schedules" className="flex items-center gap-2">
                     <Calendar className="w-4 h-4" />
-                    Schedules
+                    <span className="hidden md:block">Schedules</span>
                   </TabsTrigger>
                   <TabsTrigger value="bookings" className="flex items-center gap-2">
                     <Car className="w-4 h-4" />
-                    Bookings
+                    <span className="hidden md:block">Bookings</span>
                   </TabsTrigger>
                   <TabsTrigger value="accounting" className="flex items-center gap-2">
                     <BarChart3 className="w-4 h-4" />
-                    Accounting
+                    <span className="hidden md:block">Accounting</span>
                   </TabsTrigger>
                   <TabsTrigger value="managers" className="flex items-center gap-2">
                     <Users className="w-4 h-4" />
-                    Managers
+                    <span className="hidden md:block">Managers</span>
                   </TabsTrigger>
                 </TabsList>
 
