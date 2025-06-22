@@ -94,7 +94,8 @@ export default function SidebarContent() {
     const [, setSidebarOpen] = useState(false);
     const [expandedItems, setExpandedItems] = useState<string[]>([]);
     const pathname = usePathname();
-    const { signOut } = useAuth();
+    const { user, signOut } = useAuth();
+
     const toggleExpanded = (title: string) => {
       setExpandedItems(prev => 
         prev.includes(title) 
@@ -112,7 +113,7 @@ export default function SidebarContent() {
 
 
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full w-72">
           {/* Logo and Brand */}
           <div className="flex items-center gap-3 px-6 py-6 border-b border-gray-200">
             <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
@@ -217,8 +218,8 @@ export default function SidebarContent() {
                 <User className="w-4 h-4 text-white" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">John Doe</p>
-                <p className="text-xs text-gray-500 truncate">Admin</p>
+                <p className="text-sm font-medium text-gray-900 truncate">{user?.user_metadata.full_name}</p>
+                <p className="text-xs text-gray-500 truncate">{user?.role}</p>
               </div>
               <button onClick={signOut}>
                 <LogOut className="w-4 h-4 text-gray-400 hover:text-gray-600" />

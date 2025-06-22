@@ -1,78 +1,26 @@
 'use client';
 
-import { useState } from 'react';
 import { useParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import { getLotBySlug } from '@/lib/supabase/queries/lot';
 import { getLotSchedules } from '@/lib/supabase/queries/schedule';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MapPin, Phone, Car, Calendar, Info } from 'lucide-react';
-import { BookingModal } from '@/components/booking-modal';
+import { Clock, MapPin, Phone, Car, Calendar } from 'lucide-react';
 import { useQuery } from '@supabase-cache-helpers/postgrest-react-query';
-import { ParkingSchedule } from '@/types';
 
-interface BookingFormData {
-    email: string;
-    phone: string;
-    licensePlate: string;
-    licenseState: string;
-    vehicleType: 'STANDARD' | 'OVERSIZE';
-    startTime: string;
-}
+
 
 export default function ParkingLotPage() {
     const params = useParams();
     const lotSlug = params.lot as string;
 
     const supabase = createClient();
-    
-    // Modal states
-    const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
-    const [currentSchedule, setCurrentSchedule] = useState<ParkingSchedule | null>(null);
 
 
     const { data: lot, isLoading: lotLoading, error: lotError } = useQuery(getLotBySlug(supabase, lotSlug));
     const { data: schedules, isLoading: schedulesLoading } = useQuery(getLotSchedules(supabase, lot!.lot_id));
-
-
-    const handleBookSchedule = (schedule: ParkingSchedule) => {
-        setCurrentSchedule(schedule);
-        setIsBookingModalOpen(true);
-    };
-
-    const handleBookingSubmit = async (bookingData: BookingFormData) => {
-        try {
-            const client = createClient();
-            
-            // Create the order in the database
-            const { data, error } = await client.from('orders').insert({
-                lot_id: lot!.lot_id,
-                schedule_id: currentSchedule!.schedule_id,
-                email: bookingData.email,
-                phone: bookingData.phone,
-                license_plate: bookingData.licensePlate,
-                license_state: bookingData.licenseState,
-                vehicle_type: bookingData.vehicleType,
-                start_time: bookingData.startTime,
-                total_amount: currentSchedule!.price,
-                payment_status: 'PENDING'
-            }).select().single();
-
-            if (error) {
-                throw error;
-            }
-
-            // Show success message or redirect to payment
-            alert(`Booking successful! Order ID: ${data.order_id}`);
-            
-        } catch (err) {
-            console.error('Booking failed:', err);
-            alert('Booking failed. Please try again.');
-            throw err;
-        }
-    };
 
 
     if (lotLoading || schedulesLoading) {
@@ -101,7 +49,7 @@ export default function ParkingLotPage() {
 
     return (
         <div className="min-h-screen bg-background">
-            <div className="bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
+            <div className="">
                 <div className="container mx-auto px-4 py-8">
                     <div className="max-w-4xl mx-auto">
                         <div className="flex items-start justify-between">
@@ -135,17 +83,12 @@ export default function ParkingLotPage() {
                 <div className="max-w-4xl mx-auto">
                     {/* Lot Information Card */}
                     <Card className="mb-8">
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2">
-                                <Info className="h-5 w-5" />
-                                Lot Information
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
+
+                        <CardContent className='p-4'>
+                            <div className="space-y-4">
+                                <div className='pr-8'>
                                     <h3 className="font-semibold mb-2">Description</h3>
-                                    <p className="text-muted-foreground">
+                                    <p className="">
                                         {lot.description || 'No description available'}
                                     </p>
                                 </div>
@@ -184,42 +127,62 @@ export default function ParkingLotPage() {
                                 </CardContent>
                             </Card>
                         ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            <div className=" gap-6">
                                 {schedules?.map((schedule) => (
-                                    <Card 
-                                        key={schedule.schedule_id} 
+                                    <Card
+                                        key={schedule.schedule_id}
                                         className={`transition-all hover:shadow-lg`}
                                     >
                                         <CardHeader>
-                                            <CardTitle className="flex items-center gap-2">
-                                                <Calendar className="h-5 w-5" />
-                                                {schedule.name}
-                                            </CardTitle>
-                                            <CardDescription>
-                                                {schedule.description || 'No description available'}
-                                            </CardDescription>
-                                        </CardHeader>
-                                        <CardContent>
-                                            <div className="space-y-3">
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-sm text-muted-foreground">Duration:</span>
-                                                    <span className="font-medium">
-                                                        {schedule.duration}hrs
-                                                    </span>
+                                            <CardTitle className="flex items-center justify-between gap-2">
+                                                <div className='flex items-center gap-2'>
+                                                    <Calendar className="h-5 w-5" />
+                                                    {schedule.name}
                                                 </div>
-                                                <div className="flex items-center justify-between">
-                                                    <span className="text-sm text-muted-foreground">Price:</span>
+                                                <div className="flex items-center gap-4">
                                                     <span className="font-bold text-lg text-primary">
                                                         ${schedule.price}
                                                     </span>
                                                 </div>
+                                            </CardTitle>
+                                        </CardHeader>
+                                        <CardContent>
+                                            <div className="space-y-2">
+                                                <div className="flex items-center gap-4">
+                                                    {schedule.arrive_after && schedule.exit_before && (
+                                                        <div className='flex items-center gap-2'>
+                                                            <span className="text-sm text-muted-foreground">Start Time:</span>
+                                                            <span className="font-medium">
+                                                                {schedule.arrive_after}
+                                                            </span>
+                                                            <span className="text-sm text-muted-foreground">Exit Time:</span>
+                                                            <span className="font-medium">
+                                                                {schedule.exit_before}
+                                                            </span>
+                                                        </div>
+                                                    )}
+                                                    {schedule.duration && (
+                                                        <div className='flex items-center gap-2'>
+                                                            <span className="text-sm text-muted-foreground">Duration:</span>
+                                                            <span className="font-medium">
+                                                                {schedule.duration} hours
+                                                            </span>
+                                                        </div>
+                                                    )}
+
+
+
+                                                </div>
+
                                             </div>
                                         </CardContent>
                                         <CardFooter className="flex gap-2">
-                                            <Button 
-                                                size="sm" 
-                                                className="flex-1"
-                                                onClick={() => handleBookSchedule(schedule)}
+                                            <Button
+                                                size="sm"
+                                                className=""
+                                                onClick={() => {
+                                                    window.location.href = `/${lotSlug}/checkout?scheduleId=${schedule.schedule_id}`;
+                                                }}
                                                 disabled={lot.status !== 'OPEN'}
                                             >
                                                 <Car className="h-4 w-4 mr-1" />
@@ -233,15 +196,6 @@ export default function ParkingLotPage() {
                     </div>
                 </div>
             </div>
-
-            {/* Modals */}
-            <BookingModal
-                isOpen={isBookingModalOpen}
-                onClose={() => setIsBookingModalOpen(false)}
-                schedule={currentSchedule}
-                lot={lot}
-                onBookingSubmit={handleBookingSubmit}
-            />
         </div>
     );
 }

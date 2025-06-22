@@ -1,18 +1,19 @@
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useState } from "react";
-import { LotStatus } from "@/types";
+import { useEffect, useState } from "react";
+import { LotStatus, ParkingLot } from "@/types";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 
-import { useInsertMutation } from "@supabase-cache-helpers/postgrest-react-query";
+import { useInsertMutation, useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";
+import { useQueryClient } from "@tanstack/react-query";
 
 // Zod schema for form validation
 const createLotSchema = z.object({
@@ -42,20 +43,52 @@ type CreateLotFormData = z.infer<typeof createLotSchema>;
 
 interface CreateLotFormProps {
     userId: string;
-    isCreateLotOpen: boolean;
-    setIsCreateLotOpen: (isOpen: boolean) => void;
+    selectedLot?: ParkingLot;
 }
 
-export default function CreateLotForm({ userId, isCreateLotOpen, setIsCreateLotOpen }: CreateLotFormProps) {
+export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [isLotModalOpen, setIsLotModalOpen] = useState(false);
+    const [lotData, setLotData] = useState<ParkingLot | null>(selectedLot || null);
+
+    useEffect(() => {
+        if (selectedLot) {
+            setLotData({
+                ...selectedLot
+            });
+            form.reset({
+                status: selectedLot?.status as LotStatus || LotStatus.OPEN,
+                name: selectedLot?.name || "",
+                phone: selectedLot?.phone || "",
+                location: selectedLot?.location || "",
+                description: selectedLot?.description || "",
+                description_tag: selectedLot?.description_tag || "",
+                space_count: selectedLot?.space_count?.toString() || "1",
+                open: selectedLot?.open || "",
+                close: selectedLot?.close || "",
+                amenities: selectedLot?.amenities.join(",") || "",
+            })
+        }
+    }, [selectedLot]);
+
+    const queryClient = useQueryClient();
 
     const form = useForm<CreateLotFormData>({
         resolver: zodResolver(createLotSchema),
         defaultValues: {
-            status: LotStatus.OPEN
+            status: lotData?.status as LotStatus || LotStatus.OPEN,
+            name: lotData?.name || "",
+            phone: lotData?.phone || "",
+            location: lotData?.location || "",
+            description: lotData?.description || "",
+            description_tag: lotData?.description_tag || "",
+            space_count: lotData?.space_count?.toString() || "1",
+            open: lotData?.open || "",
+            close: lotData?.close || "",
+            amenities: lotData?.amenities.join(",") || "",
         }
     });
-
+    
     const supabase = createClient();
     const { mutateAsync: createLot } = useInsertMutation(
         supabase.from('lots'),
@@ -64,7 +97,22 @@ export default function CreateLotForm({ userId, isCreateLotOpen, setIsCreateLotO
         {
             onSuccess: () => {
                 form.reset();
-                setIsCreateLotOpen(false);
+                setIsLotModalOpen(false);
+            },
+            onError: (error) => {
+                console.error(error.message)
+            }
+        }
+    )
+    const { mutateAsync: updateLot } = useUpdateMutation(
+        supabase.from('lots'),
+        ['lot_id'],
+        'lot_id',
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries({ queryKey: ['lots'] });
+                form.reset();
+                setIsLotModalOpen(false);
             },
             onError: (error) => {
                 console.error(error.message)
@@ -76,18 +124,32 @@ export default function CreateLotForm({ userId, isCreateLotOpen, setIsCreateLotO
         setIsSubmitting(true);
         try {
             // Convert string values to appropriate types
-            const lotData = {
+            const newLotData = {
                 ...data,
                 space_count: parseInt(data.space_count),
                 amenities: data.amenities ? data.amenities.split(',').map(a => a.trim()) : [],
                 supervisors: [userId],
                 employees: [],
                 images: [],
-                qr_image: ""
-            
+                qr_image: "",
+                slug: data.name.toLowerCase().replace(/ /g, '-')
             };
 
-            await createLot([lotData]);
+            if (lotData) {
+                await updateLot({
+                    ...newLotData,
+                    lot_id: lotData.lot_id,
+                    qr_image: lotData.qr_image,
+                    slug: lotData.slug,
+                    employees: lotData.employees,
+                    supervisors: lotData.supervisors,
+                    images: lotData.images,
+                });
+            } else {
+
+                await createLot([newLotData]);
+            }
+
         } catch (error) {
             console.error('Error creating lot:', error);
         } finally {
@@ -97,22 +159,29 @@ export default function CreateLotForm({ userId, isCreateLotOpen, setIsCreateLotO
 
     const handleCancel = () => {
         form.reset();
-        setIsCreateLotOpen(false);
+        setIsLotModalOpen(false);
     };
 
     return (
-        <Dialog open={isCreateLotOpen} onOpenChange={setIsCreateLotOpen}>
+        <Dialog open={isLotModalOpen} onOpenChange={setIsLotModalOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
-                    <Plus className="w-4 h-4" />
-                    Add New Lot
-                </Button>
+                {lotData ? (
+                    <Button variant="outline">
+                        <Pencil className="w-4 h-4" />
+                        Edit Lot
+                    </Button>
+                ) : (
+                    <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+                        <Plus className="w-4 h-4" />
+                        Add New Lot
+                    </Button>
+                )}
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
                 <DialogHeader>
-                    <DialogTitle>Create New Parking Lot</DialogTitle>
+                        <DialogTitle>{lotData ? "Edit Parking Lot" : "Create New Parking Lot"}</DialogTitle>
                     <DialogDescription>
-                        Add a new parking facility to your management system.
+                        {lotData ? "Edit the parking facility to your management system." : "Add a new parking facility to your management system."}
                     </DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
@@ -292,7 +361,7 @@ export default function CreateLotForm({ userId, isCreateLotOpen, setIsCreateLotO
                                 Cancel
                             </Button>
                             <Button type="submit" disabled={isSubmitting}>
-                                {isSubmitting ? "Creating..." : "Create Parking Lot"}
+                                {isSubmitting ? "Processing..." : lotData ? "Update Parking Lot" : "Create Parking Lot"}
                             </Button>
                         </div>
                     </form>

@@ -22,19 +22,17 @@ import { LotStatus, ParkingLot, UserRole } from '@/types';
 import { useQuery } from '@tanstack/react-query';
 import { getLotsBySupervisor } from '@/lib/supabase/queries/lot';
 import { createClient } from '@/lib/supabase/client';
-import CreateLotForm from '@/components/dashboard/lots/create-lot-form';
 import Overview from '@/components/dashboard/lots/overview';
 import Schedule from '@/components/dashboard/lots/schedule';
 import Booking from '@/components/dashboard/lots/booking';
 import Accounting from '@/components/dashboard/lots/accounting';
 import Employee from '@/components/dashboard/lots/employee';
+import LotForm from '@/components/dashboard/lots/create-lot-form';
 
 
 export default function ParkingLotsPage() {
   const [lots, setLots] = useState<ParkingLot[]>([]);
   const [selectedLot, setSelectedLot] = useState<ParkingLot | null>(null);
-  const [isCreateLotOpen, setIsCreateLotOpen] = useState(false);
-  const [isCreateScheduleOpen, setIsCreateScheduleOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('overview');
 
 
@@ -50,10 +48,18 @@ export default function ParkingLotsPage() {
 
   useEffect(() => {
     if (query.data && query.data.length > 0) {
-      setSelectedLot(query.data[0]);
       setLots(query.data || []);
     }
-  }, [query.data]);
+    if (query.data && query.data.length > 0 && !selectedLot) {
+      setSelectedLot(query.data[0]);
+    } else if (selectedLot) {
+      const lot = query.data?.find(lot => lot.lot_id === selectedLot?.lot_id);
+      if (lot) {
+        setSelectedLot(lot);
+      }
+    }
+
+  }, [query]);
 
   const getStatusColor = (status: LotStatus) => {
     switch (status) {
@@ -61,7 +67,7 @@ export default function ParkingLotsPage() {
         return 'bg-green-100 text-green-800 border-green-200';
       case LotStatus.CLOSED:
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-red-100 text-red-800 border-red-200';
     }
   };
 
@@ -109,7 +115,7 @@ export default function ParkingLotsPage() {
                 </Select>
               </div>
               {!userLoading && user?.role === UserRole.ADMIN && (
-                <CreateLotForm userId={user.id} isCreateLotOpen={isCreateLotOpen} setIsCreateLotOpen={setIsCreateLotOpen} />
+                <LotForm userId={user.id} />
               )}
             </div>
           </CardContent>
@@ -133,50 +139,52 @@ export default function ParkingLotsPage() {
               </div>
             </CardHeader>
             <CardContent className="p-0">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid w-full grid-cols-5 bg-gray-50 rounded-none">
-                  <TabsTrigger value="overview" className="flex items-center gap-2">
-                    <Activity className="w-4 h-4" />
-                    <span className="hidden md:block">Overview</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="schedules" className="flex items-center gap-2">
-                    <Calendar className="w-4 h-4" />
-                    <span className="hidden md:block">Schedules</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="bookings" className="flex items-center gap-2">
-                    <Car className="w-4 h-4" />
-                    <span className="hidden md:block">Bookings</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="accounting" className="flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" />
-                    <span className="hidden md:block">Accounting</span>
-                  </TabsTrigger>
-                  <TabsTrigger value="managers" className="flex items-center gap-2">
-                    <Users className="w-4 h-4" />
-                    <span className="hidden md:block">Managers</span>
-                  </TabsTrigger>
-                </TabsList>
+              {user && !userLoading && (
+                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                  <TabsList className="grid w-full grid-cols-5 bg-gray-50 rounded-none">
+                    <TabsTrigger value="overview" className="flex items-center gap-2">
+                      <Activity className="w-4 h-4" />
+                      <span className="hidden md:block">Overview</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="schedules" className="flex items-center gap-2">
+                      <Calendar className="w-4 h-4" />
+                      <span className="hidden md:block">Schedules</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="bookings" className="flex items-center gap-2">
+                      <Car className="w-4 h-4" />
+                      <span className="hidden md:block">Bookings</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="accounting" className="flex items-center gap-2">
+                      <BarChart3 className="w-4 h-4" />
+                      <span className="hidden md:block">Accounting</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="managers" className="flex items-center gap-2">
+                      <Users className="w-4 h-4" />
+                      <span className="hidden md:block">Managers</span>
+                    </TabsTrigger>
+                  </TabsList>
 
-                <TabsContent value="overview" className="p-6 space-y-6">
-                  <Overview selectedLot={selectedLot} />
-                </TabsContent>
+                  <TabsContent value="overview" className="p-6 space-y-6">
+                    <Overview selectedLot={selectedLot} userId={user?.id} />
+                  </TabsContent>
 
-                <TabsContent value="schedules" className="p-6">
-                  <Schedule selectedLot={selectedLot} isCreateScheduleOpen={isCreateScheduleOpen} setIsCreateScheduleOpen={setIsCreateScheduleOpen} />
-                </TabsContent>
+                  <TabsContent value="schedules" className="p-6">
+                    <Schedule selectedLot={selectedLot} />
+                  </TabsContent>
 
-                <TabsContent value="bookings" className="p-6">
-                  <Booking selectedLot={selectedLot} />
-                </TabsContent>
+                  <TabsContent value="bookings" className="p-6">
+                    <Booking selectedLot={selectedLot} />
+                  </TabsContent>
 
-                <TabsContent value="accounting" className="p-6">
-                  <Accounting />
-                </TabsContent>
+                  <TabsContent value="accounting" className="p-6">
+                    <Accounting />
+                  </TabsContent>
 
-                <TabsContent value="managers" className="p-6">
-                  <Employee />
-                </TabsContent>
-              </Tabs>
+                  <TabsContent value="managers" className="p-6">
+                    <Employee />
+                  </TabsContent>
+                </Tabs>
+              )}
             </CardContent>
           </Card>
         )}

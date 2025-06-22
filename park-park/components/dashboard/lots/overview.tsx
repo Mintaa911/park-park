@@ -14,6 +14,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { formatTime, getImageUrl } from "@/lib/utils";
 import GenerateQrCode from "@/components/generate-qr-code";
+import { useQueryClient } from "@tanstack/react-query";
+import LotForm from "./create-lot-form";
 
 // Zod schema for form validation
 const uploadImagesSchema = z.object({
@@ -22,10 +24,17 @@ const uploadImagesSchema = z.object({
 
 type UploadImagesFormData = z.infer<typeof uploadImagesSchema>;
 
-export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
+interface OverviewProps {
+  selectedLot: ParkingLot;
+  userId: string;
+}
+
+export default function Overview({ selectedLot, userId }: OverviewProps) {
   const [files, setFiles] = useState<PickerFile[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const supabase = createClient();
 
@@ -36,6 +45,7 @@ export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
     {
       onSuccess: () => {
         console.log("Lot updated successfully");
+        queryClient.invalidateQueries({ queryKey: ['lots'] });
       },
       onError: (error) => {
         console.error("Error updating lot", error);
@@ -53,7 +63,7 @@ export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
   const onSubmit = async () => {
     setIsSubmitting(true);
 
-    try {      
+    try {
       // Upload all files and wait for all to complete
       const uploadPromises = files.map(async (file) => {
         const fileName = `images/${selectedLot.lot_id}/${file.name}`;
@@ -73,7 +83,6 @@ export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
 
       // Wait for all uploads to complete
       const images = await Promise.all(uploadPromises);
-      console.log(images);
 
       // Now update the lot with all uploaded image paths
       await updateLot({
@@ -109,58 +118,61 @@ export default function Overview({ selectedLot }: { selectedLot: ParkingLot }) {
               <ImageIcon className="w-4 h-4" />
               Facility Images
             </h4>
-            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" className="mb-4">
-                  <Upload className="w-4 h-4 mr-2" />
-                  Upload
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-md">
-                <DialogHeader>
-                  <DialogTitle>Upload Facility Images</DialogTitle>
-                </DialogHeader>
-                <Form {...form}>
-                  <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="files"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormControl>
-                            <FileUpload
-                              label="Upload Images"
-                              files={files}
-                              setFiles={(newFiles) => {
-                                setFiles(newFiles);
-                                field.onChange(newFiles);
-                              }}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <DialogFooter>
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={handleCancel}
-                        disabled={isSubmitting}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        type="submit"
-                        disabled={isSubmitting || files.length === 0}
-                      >
-                        {isSubmitting ? "Uploading..." : "Upload Images"}
-                      </Button>
-                    </DialogFooter>
-                  </form>
-                </Form>
-              </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" className="mb-4">
+                    <Upload className="w-4 h-4 mr-2" />
+                    Upload
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="sm:max-w-md">
+                  <DialogHeader>
+                    <DialogTitle>Upload Facility Images</DialogTitle>
+                  </DialogHeader>
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                      <FormField
+                        control={form.control}
+                        name="files"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormControl>
+                              <FileUpload
+                                label="Upload Images"
+                                files={files}
+                                setFiles={(newFiles) => {
+                                  setFiles(newFiles);
+                                  field.onChange(newFiles);
+                                }}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      <DialogFooter>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={handleCancel}
+                          disabled={isSubmitting}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          type="submit"
+                          disabled={isSubmitting || files.length === 0}
+                        >
+                          {isSubmitting ? "Uploading..." : "Upload Images"}
+                        </Button>
+                      </DialogFooter>
+                    </form>
+                  </Form>
+                </DialogContent>
+              </Dialog>
+              <LotForm userId={userId} selectedLot={selectedLot} />
+            </div>
           </div>
           <div className="flex flex-wrap gap-2">
             {selectedLot.images.map((image: string, index: number) => (

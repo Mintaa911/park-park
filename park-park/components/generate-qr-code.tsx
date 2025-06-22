@@ -10,6 +10,7 @@ import { ParkingLot } from '@/types';
 import { useState } from 'react';
 import { useUpdateMutation } from '@supabase-cache-helpers/postgrest-react-query';
 import { createClient } from '@/lib/supabase/client';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface QrCodeProps {
   selectedLot: ParkingLot;
@@ -18,6 +19,9 @@ interface QrCodeProps {
 export default function GenerateQrCode({ selectedLot }: QrCodeProps) {
   const [isGeneratingQr, setIsGeneratingQr] = useState(false); 
   const supabase = createClient();
+  const queryClient = useQueryClient();
+
+
   const { mutateAsync: updateLot } = useUpdateMutation(
     supabase.from('lots'),
     ['lot_id'],
@@ -25,6 +29,7 @@ export default function GenerateQrCode({ selectedLot }: QrCodeProps) {
     {
       onSuccess: () => {
         console.log("Lot updated successfully");
+        queryClient.invalidateQueries({ queryKey: ['lots'] });
       },
       onError: (error) => {
         console.error("Error updating lot", error);

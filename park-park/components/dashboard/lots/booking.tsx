@@ -4,7 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Car, Filter, Mail, Phone, Eye } from "lucide-react";
 import { formatTime } from "@/lib/utils";
 import { formatCurrency } from "@/lib/utils";
-import { getBookingStatusColor, getPaymentStatusColor } from "@/lib/utils";
+import { getBookingStatusColor } from "@/lib/utils";
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getLotOrders } from "@/lib/supabase/queries/order";
@@ -37,7 +37,7 @@ export default function Booking({ selectedLot }: { selectedLot: ParkingLot }) {
                           <CardContent className="p-4">
                             <div className="flex justify-between items-start mb-3">
                               <div>
-                                <h4 className="font-semibold text-lg text-gray-900">{booking.email}</h4>
+                            
                                 <p className="text-gray-600 flex items-center gap-1">
                                   <Mail className="w-4 h-4" />
                                   {booking.email}
@@ -51,9 +51,6 @@ export default function Booking({ selectedLot }: { selectedLot: ParkingLot }) {
                                 <Badge className={getBookingStatusColor(booking.payment_status)}>
                                   {booking.payment_status}
                                 </Badge>
-                                <p className="text-sm text-gray-500 mt-1">
-                                  {new Date(booking.created_at).toLocaleDateString()}
-                                </p>
                               </div>
                             </div>
 
@@ -63,21 +60,16 @@ export default function Booking({ selectedLot }: { selectedLot: ParkingLot }) {
                                 <p className="font-medium">{new Date(booking.created_at).toLocaleDateString()}</p>
                               </div>
                               <div>
-                                <p className="text-sm text-gray-500">Time Slot</p>
+                                <p className="text-sm text-gray-500">Start Time</p>
                                 <p className="font-medium">
-                                  {formatTime(booking.start_time)} - {formatTime(booking.start_time)}
+                                  {formatTime(booking.start_time)}
                                 </p>
                               </div>
                               <div>
                                 <p className="text-sm text-gray-500">Amount</p>
                                 <p className="font-medium">{formatCurrency(booking.total_amount)}</p>
                               </div>
-                              <div>
-                                <p className="text-sm text-gray-500">Payment</p>
-                                <Badge variant="outline" className={getPaymentStatusColor(booking.payment_status)}>
-                                  {booking.payment_status}
-                                </Badge>
-                              </div>
+
                             </div>
                           </CardContent>
                         </Card>

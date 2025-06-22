@@ -22,11 +22,25 @@ export function getImageUrl(path: string) {
 
 export function formatTime(time: string | null) {
   if (!time) return 'N/A';
-  return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
+
+  if(time.includes('T')) {
+    const date = new Date(time);
+    return date.toLocaleDateString('en-US', {
+      weekday: 'short',
+      month: 'short',
+      day: 'numeric'
+    }) + ' | ' + date.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
       hour12: true
-  });
+    });
+  }
+
+  return new Date(`2000-01-01T${time}`).toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+});
 };
 
 export function formatCurrency(amount: number) {
