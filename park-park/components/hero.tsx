@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useDebounce } from "@/hooks/useDebounce";
 import { useQuery } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";
@@ -15,6 +15,7 @@ export function Hero() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const debouncedSearchQuery = useDebounce(searchQuery, 500); // 500ms debounce
+  const searchResultsRef = useRef<HTMLDivElement>(null);
 
   const supabase = createClient();
   const { data: searchResults, isLoading: isSearchLoading } = useQuery(
@@ -27,6 +28,16 @@ export function Hero() {
   const handleSearch = () => {
     // Handle search button click if needed
     console.log("Searching for:", searchQuery);
+  };
+
+  const handleInputBlur = (e: React.FocusEvent) => {
+    // Check if the related target is within the search results
+    if (searchResultsRef.current?.contains(e.relatedTarget as Node)) {
+      return; // Don't hide results if clicking within them
+    }
+    
+    // Delay hiding results to allow clicking on them
+    setTimeout(() => setIsSearchFocused(false), 300);
   };
 
   return (
@@ -58,13 +69,10 @@ export function Hero() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
-                    onBlur={() => {
-                      // Delay hiding results to allow clicking on them
-                      setTimeout(() => setIsSearchFocused(false), 200);
-                    }}
+                    onBlur={handleInputBlur}
                   />
                   {isSearchFocused && (
-                    <div className="absolute top-full left-0 right-0 z-50 bg-white border rounded-lg mt-1">
+                    <div className="absolute top-full left-0 right-0 z-50 bg-white border rounded-lg mt-1" ref={searchResultsRef}>
                       <SearchResults
                         results={searchResults || []}
                         isLoading={isSearchLoading}
@@ -90,13 +98,10 @@ export function Hero() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     onFocus={() => setIsSearchFocused(true)}
-                    onBlur={() => {
-                      // Delay hiding results to allow clicking on them
-                      setTimeout(() => setIsSearchFocused(false), 200);
-                    }}
+                    onBlur={handleInputBlur}
                   />
                   {isSearchFocused && (
-                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg mt-1">
+                    <div className="absolute top-full left-0 right-0 z-50 bg-white border border-gray-200 rounded-lg shadow-lg mt-1" ref={searchResultsRef}>
                       <SearchResults
                         results={searchResults || []}
                         isLoading={isSearchLoading}
