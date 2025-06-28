@@ -1,6 +1,6 @@
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Plus } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
@@ -11,25 +11,36 @@ import { z } from "zod";
 import { useInsertMutation, useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useState, useEffect } from "react";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 
 
 const scheduleSchema = z.object({
     name: z.string().min(1, "Schedule name is required").max(100, "Schedule name must be less than 100 characters"),
-    duration: z.number().min(1, "Duration is required"),
-    arrive_after: z.date(),
-    exit_before: z.date(),
+    description: z.string().optional(),
     is_event: z.boolean(),
-    price: z.number().min(0.01, "Price must be greater than 0").max(1000, "Price must be less than $1000"),
+    days: z.array(z.number()),
+    start_time: z.string().optional(),
+    end_time: z.string().optional(),
+    event_start: z.date().optional(),
+    event_end: z.date().optional(),
 
 }).refine((data) => {
-    // For event schedules, exit_before must be after arrive_after
-    if (data.is_event) {
-        return data.exit_before && data.arrive_after && data.exit_before > data.arrive_after;
-    }
+    if (data.event_end && data.event_start) {
+        return data.event_end > data.event_start;
+    } 
     return true;
 }, {
-    message: "Exit time must be after arrival time",
-    path: ["exit_before"]
+    message: "Event start time must be before event end time",
+    path: ["event_end"]
+}).refine((data) => {
+    if (data.start_time && data.end_time) {
+        return data.start_time < data.end_time;
+    } 
+    return true;
+}, {
+    message: "Start time must be before end time",
+    path: ["end_time"]
 });
 
 type ScheduleFormData = z.infer<typeof scheduleSchema>;
@@ -41,8 +52,22 @@ interface ScheduleFormProps {
 
 export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProps) {
     const [isCreateScheduleOpen, setIsCreateScheduleOpen] = useState(false);
-
     const supabase = createClient();
+
+    const form = useForm<ScheduleFormData>({
+        resolver: zodResolver(scheduleSchema),
+        defaultValues: {
+            name: schedule?.name || "",
+            description: schedule?.description || "",
+            is_event: schedule?.is_event || false,
+            days: schedule?.days || [],
+            start_time: schedule?.start_time || "",
+            end_time: schedule?.end_time || "",
+            event_start: schedule?.event_start ? new Date(schedule.event_start) : undefined,
+            event_end: schedule?.event_end ? new Date(schedule.event_end) : undefined,
+        },
+    });
+
 
     const { mutateAsync: updateSchedule } = useUpdateMutation(
         supabase.from('schedules'),
@@ -74,28 +99,18 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
         }
     )
 
-    const form = useForm<ScheduleFormData>({
-        resolver: zodResolver(scheduleSchema),
-        defaultValues: {
-            name: schedule?.name || "",
-            price: schedule?.price || 0,
-            duration: schedule?.duration || 1,
-            is_event: schedule?.is_event || false,
-            arrive_after: schedule?.arrive_after ? new Date(schedule.arrive_after) : new Date(),
-            exit_before: schedule?.exit_before ? new Date(schedule.exit_before) : new Date(),
-        },
-    });
-
     // Reset form when dialog opens/closes or when schedule changes
     useEffect(() => {
         if (isCreateScheduleOpen) {
             form.reset({
                 name: schedule?.name || "",
-                price: schedule?.price || 0,
-                duration: schedule?.duration || 1,
+                description: schedule?.description || "",
                 is_event: schedule?.is_event || false,
-                arrive_after: schedule?.arrive_after ? new Date(schedule.arrive_after) : new Date(),
-                exit_before: schedule?.exit_before ? new Date(schedule.exit_before) : new Date(),
+                days: schedule?.days || [],
+                start_time: schedule?.start_time || "",
+                end_time: schedule?.end_time || "",
+                event_start: schedule?.event_start ? new Date(schedule.event_start) : undefined,
+                event_end: schedule?.event_end ? new Date(schedule.event_end) : undefined,
             });
         }
     }, [isCreateScheduleOpen, schedule, form]);
@@ -106,10 +121,12 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
             const scheduleData = {
                 lot_id: selectedLot.lot_id,
                 name: data.name,
-                price: data.price,
-                duration: !data.is_event ? data.duration : null,
-                arrive_after: data.is_event ? data.arrive_after : null,
-                exit_before: data.is_event ? data.exit_before : null,
+                description: data.description,
+                days: data.is_event ? [] : data.days,
+                event_start: data.is_event ? data.event_start?.toLocaleString('sv-SE') : null,
+                event_end: data.is_event ? data.event_end?.toLocaleString('sv-SE') : null,
+                start_time: data.is_event ? null : data.start_time,
+                end_time: data.is_event ? null : data.end_time,
                 is_event: data.is_event,
             };
 
@@ -140,7 +157,7 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
                         </Button>
                     ) : (
                         <Button>
-                            <Trash2 className="w-4 h-4 mr-2" />
+                            <Plus className="w-4 h-4 mr-2" />
                             Add Schedule
                         </Button>
                     )}
@@ -167,60 +184,32 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
                                     </FormItem>
                                 )}
                             />
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormField
-                                    control={form.control}
-                                    name="price"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <FormLabel>Price</FormLabel>
-                                            <FormControl>
-                                                <Input
-                                                    type="float"
-                                                    step="0.01"
-                                                    placeholder="e.g., 10.00"
-                                                    {...field}
-                                                    onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                                                />
-                                            </FormControl>
-                                            <FormMessage />
-                                        </FormItem>
-                                    )}
-                                />
-                                {!form.watch("is_event") && (
-                                    <FormField
-                                        control={form.control}
-                                        name="duration"
-                                        render={({ field }) => (
-                                            <FormItem>
-                                                <FormLabel>Duration</FormLabel>
-                                                <FormControl>
-                                                    <Input
-                                                        type="number"
-                                                        placeholder="e.g., 2"
-                                                        {...field}
-                                                        onChange={(e) => field.onChange(parseInt(e.target.value) || 1)}
-                                                    />
-                                                </FormControl>
-                                                <FormMessage />
-                                            </FormItem>
-                                        )}
-                                    />
+                            <FormField
+                                control={form.control}
+                                name="description"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Description</FormLabel>
+                                        <FormControl>
+                                            <Textarea placeholder="e.g., Morning Rush..." {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
                                 )}
-                            </div>
+                            />
                             {form.watch("is_event") && (
-                                <div className="grid grid-cols-2 gap-4 mt-4 mb-4">
+                                <div className="grid w-fit md:grid-cols-2 gap-2 mt-4 mb-4">
                                     <FormField
                                         control={form.control}
-                                        name="arrive_after"
+                                        name="event_start"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Arrive After</FormLabel>
+                                                <FormLabel>Event Start</FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="datetime-local"
                                                         {...field}
-                                                        value={field.value instanceof Date ? field.value.toISOString().slice(0, 16) : ''}
+                                                        value={field.value instanceof Date ? field.value.toLocaleString('sv-SE').slice(0, 16) : ''}
                                                         onChange={(e) => field.onChange(new Date(e.target.value))}
                                                     />
                                                 </FormControl>
@@ -230,15 +219,15 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
                                     />
                                     <FormField
                                         control={form.control}
-                                        name="exit_before"
+                                        name="event_end"
                                         render={({ field }) => (
                                             <FormItem>
-                                                <FormLabel>Exit Before</FormLabel>
+                                                <FormLabel>Event End</FormLabel>
                                                 <FormControl>
                                                     <Input
                                                         type="datetime-local"
                                                         {...field}
-                                                        value={field.value instanceof Date ? field.value.toISOString().slice(0, 16) : ''}
+                                                        value={field.value instanceof Date ? field.value.toLocaleString('sv-SE').slice(0, 16) : ''}
                                                         onChange={(e) => field.onChange(new Date(e.target.value))}
                                                     />
                                                 </FormControl>
@@ -247,6 +236,91 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
                                         )}
                                     />
                                 </div>
+                            )}
+                            {!form.watch("is_event") && (
+                                <div className="flex flex-wrap gap-4 mt-4 mb-4">
+                                    <FormField
+                                        control={form.control}
+                                        name="start_time"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Start Time</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="time"
+                                                        {...field}
+                                                        value={field.value || ''}
+                                                        onChange={(e) => field.onChange(e.target.value)}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="end_time"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>End Time</FormLabel>
+                                                <FormControl>
+                                                    <Input
+                                                        type="time"
+                                                        {...field}
+                                                        value={field.value || ''}
+                                                        onChange={(e) => field.onChange(e.target.value)}
+                                                    />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
+                            )}
+                            {!form.watch("is_event") && (
+                                <FormField
+                                    control={form.control}
+                                    name="days"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Days of the Week</FormLabel>
+                                            <FormControl>
+                                                <div className="flex flex-wrap gap-2">
+                                                    {[
+                                                        { value: 1, label: "Monday" },
+                                                        { value: 2, label: "Tuesday" },
+                                                        { value: 3, label: "Wednesday" },
+                                                        { value: 4, label: "Thursday" },
+                                                        { value: 5, label: "Friday" },
+                                                        { value: 6, label: "Saturday" },
+                                                        { value: 7, label: "Sunday" }
+                                                    ].map((day) => (
+                                                        <div key={day.value} className="flex items-center space-x-2">
+                                                            <Checkbox
+                                                                id={`day-${day.value}`}
+                                                                checked={field.value?.includes(day.value)}
+                                                                onCheckedChange={(checked) => {
+                                                                    if (checked) {
+                                                                        field.onChange([...field.value, day.value]);
+                                                                    } else {
+                                                                        field.onChange(field.value?.filter((d: number) => d !== day.value) || []);
+                                                                    }
+                                                                }}
+                                                            />
+                                                            <label
+                                                                htmlFor={`day-${day.value}`}
+                                                                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                                            >
+                                                                {day.label}
+                                                            </label>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             )}
                             <div className="w-fit">
                                 <FormField

@@ -18,3 +18,16 @@ export function getLotBySlug(client: TypedSupabaseClient, lotSlug: string) {
 export async function createLot(client: TypedSupabaseClient, lot: ParkingLot) {
     return client.from('lots').insert(lot);
 }
+
+export function searchParkingLots(client: TypedSupabaseClient, searchQuery: string) {
+    if (!searchQuery.trim()) {
+        return client.from('lots').select('*').eq('status', 'OPEN').limit(10);
+    }
+    
+    return client
+        .from('lots')
+        .select('*')
+        .eq('status', 'OPEN')
+        .or(`name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+        .limit(10);
+}

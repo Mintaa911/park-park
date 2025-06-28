@@ -50,6 +50,23 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLotModalOpen, setIsLotModalOpen] = useState(false);
     const [lotData, setLotData] = useState<ParkingLot | null>(selectedLot || null);
+    
+    const form = useForm<CreateLotFormData>({
+        resolver: zodResolver(createLotSchema),
+        defaultValues: {
+            status: lotData?.status as LotStatus || LotStatus.OPEN,
+            name: lotData?.name || "",
+            phone: lotData?.phone || "",
+            location: lotData?.location || "",
+            description: lotData?.description || "",
+            description_tag: lotData?.description_tag || "",
+            space_count: lotData?.space_count?.toString() || "1",
+            open: lotData?.open || "",
+            close: lotData?.close || "",
+            amenities: lotData?.amenities.join(",") || "",
+        }
+    });
+
 
     useEffect(() => {
         if (selectedLot) {
@@ -69,26 +86,12 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                 amenities: selectedLot?.amenities.join(",") || "",
             })
         }
-    }, [selectedLot]);
+    }, [selectedLot, form]);
 
     const queryClient = useQueryClient();
 
-    const form = useForm<CreateLotFormData>({
-        resolver: zodResolver(createLotSchema),
-        defaultValues: {
-            status: lotData?.status as LotStatus || LotStatus.OPEN,
-            name: lotData?.name || "",
-            phone: lotData?.phone || "",
-            location: lotData?.location || "",
-            description: lotData?.description || "",
-            description_tag: lotData?.description_tag || "",
-            space_count: lotData?.space_count?.toString() || "1",
-            open: lotData?.open || "",
-            close: lotData?.close || "",
-            amenities: lotData?.amenities.join(",") || "",
-        }
-    });
-    
+
+
     const supabase = createClient();
     const { mutateAsync: createLot } = useInsertMutation(
         supabase.from('lots'),
@@ -179,7 +182,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
             </DialogTrigger>
             <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
                 <DialogHeader>
-                        <DialogTitle>{lotData ? "Edit Parking Lot" : "Create New Parking Lot"}</DialogTitle>
+                    <DialogTitle>{lotData ? "Edit Parking Lot" : "Create New Parking Lot"}</DialogTitle>
                     <DialogDescription>
                         {lotData ? "Edit the parking facility to your management system." : "Add a new parking facility to your management system."}
                     </DialogDescription>

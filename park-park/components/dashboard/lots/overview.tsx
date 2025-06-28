@@ -87,7 +87,7 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
       // Now update the lot with all uploaded image paths
       await updateLot({
         lot_id: selectedLot.lot_id,
-        images: images,
+        images: [...selectedLot.images, ...images],
       });
 
       form.reset();

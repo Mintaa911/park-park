@@ -67,11 +67,11 @@ export function getBookingStatusColor(status: string) {
 
 export function getPaymentStatusColor(status: string) {
   switch (status) {
-    case 'paid':
+    case 'PAID':
       return 'bg-green-100 text-green-800';
-    case 'pending':
+    case 'PENDING':
       return 'bg-yellow-100 text-yellow-800';
-    case 'failed':
+    case 'FAILED':
       return 'bg-red-100 text-red-800';
     default:
       return 'bg-gray-100 text-gray-800';
@@ -90,3 +90,14 @@ export function getRoleColor(role: string) {
       return 'bg-gray-100 text-gray-800';
   }
 };
+
+export function getDayNumber(date: Date) {
+  const day = date.getDay();
+  return day === 0 ? 7 : day; // Convert Sunday (0) to 7, keep others as is
+};
+
+export function fromDatetimeLocalValue(value: Date): string {
+
+  const offset = value.getTimezoneOffset() * 60000
+  return new Date(value.getTime() + offset).toISOString()
+}

@@ -5,13 +5,14 @@ import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcEl
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
-import { ParkingLot, ParkingSchedule } from '@/types';
+import { ParkingLot, ParkingSchedule, PriceTier } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
 interface CheckoutFormProps {
     schedule: ParkingSchedule;
     lot: ParkingLot;
+    priceTier: PriceTier;
     customerInfo: {
         email: string;
         phone: string;
@@ -36,7 +37,7 @@ const cardElementOptions = {
     },
 };
 
-export function CheckoutForm({ schedule, lot, customerInfo, clientSecret }: CheckoutFormProps) {
+export function CheckoutForm({ schedule, lot, customerInfo, clientSecret, priceTier }: CheckoutFormProps) {
     const router = useRouter();
     const stripe = useStripe();
     const elements = useElements();
@@ -97,7 +98,8 @@ export function CheckoutForm({ schedule, lot, customerInfo, clientSecret }: Chec
                     phone: customerInfo.phone,
                     license_plate: customerInfo.licensePlate,
                     license_state: customerInfo.licenseState,
-                    total_amount: schedule.price,
+                    total_amount: priceTier.price,
+                    price_tier: priceTier.price_id,
                     payment_status: 'PAID',
                     start_time: new Date().toISOString(),
                     stripe_payment_intent_id: paymentIntent.id,
@@ -190,7 +192,7 @@ export function CheckoutForm({ schedule, lot, customerInfo, clientSecret }: Chec
                         ) : (
                             <>
                                 
-                                Pay {formatPrice(schedule.price)}
+                                Pay {formatPrice(priceTier.price)}
                             </>
                         )}
                     </Button>

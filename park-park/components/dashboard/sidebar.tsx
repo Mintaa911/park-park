@@ -80,12 +80,12 @@ const sidebarItems: SidebarItem[] = [
   const bottomSidebarItems: SidebarItem[] = [
     {
       title: 'Settings',
-      href: '/dashboard/settings',
+      href: '/dashboard',
       icon: Settings,
     },
     {
       title: 'Help & Support',
-      href: '/dashboard/help',
+      href: '/dashboard',
       icon: HelpCircle,
     },
   ];

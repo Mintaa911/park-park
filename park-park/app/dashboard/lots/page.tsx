@@ -59,7 +59,7 @@ export default function ParkingLotsPage() {
       }
     }
 
-  }, [query]);
+  }, [query, selectedLot]);
 
   const getStatusColor = (status: LotStatus) => {
     switch (status) {
@@ -122,7 +122,7 @@ export default function ParkingLotsPage() {
         </Card>
 
         {selectedLot && (
-          <Card className="shadow-lg border-0">
+          <Card className="border-0">
             <CardHeader className="rounded-t-lg">
               <div className="flex justify-between items-start">
                 <div>
