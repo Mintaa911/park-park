@@ -13,6 +13,8 @@ import { createClient } from "@/lib/supabase/client";
 import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 
 const scheduleSchema = z.object({
@@ -53,6 +55,7 @@ interface ScheduleFormProps {
 export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProps) {
     const [isCreateScheduleOpen, setIsCreateScheduleOpen] = useState(false);
     const supabase = createClient();
+    const queryClient = useQueryClient();
 
     const form = useForm<ScheduleFormData>({
         resolver: zodResolver(scheduleSchema),
@@ -75,11 +78,14 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
         'schedule_id',
         {
             onSuccess: () => {
+                toast.success("Schedule updated successfully");
                 setIsCreateScheduleOpen(false);
                 form.reset();
+                queryClient.invalidateQueries({ queryKey: ['schedules', selectedLot.lot_id] })
             },
             onError: (error) => {
                 console.error("Error updating schedule", error);
+                toast.error("Error updating schedule");
             }
         }
     )
@@ -90,11 +96,14 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
         'lot_id',
         {
             onSuccess: () => {
+                toast.success("Schedule created successfully");
                 setIsCreateScheduleOpen(false);
                 form.reset();
+                queryClient.invalidateQueries({ queryKey: ['schedules', selectedLot.lot_id] })
             },
             onError: (error) => {
                 console.error("Error creating schedule", error);
+                toast.error("Error creating schedule");
             }
         }
     )
@@ -138,6 +147,7 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
             }
         } catch (error) {
             console.error("Error creating/updating schedule:", error);
+            toast.error("Error creating/updating schedule");
         }
     };
 

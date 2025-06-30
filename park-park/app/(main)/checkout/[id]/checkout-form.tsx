@@ -8,6 +8,7 @@ import { CheckCircle } from 'lucide-react';
 import { PriceTier } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
+import { toast } from 'sonner';
 
 interface CheckoutFormProps {
     schedule_id: string;
@@ -116,8 +117,9 @@ export function CheckoutForm({ schedule_id, lot_id, customerInfo, clientSecret, 
                 }, 2000);
 
             } catch (err) {
-                console.error('Database error:', err);
-                setError('Payment successful but failed to save booking. Please contact support.');
+                console.error('Error saving booking:', err);
+                toast.error('Error saving booking. Please contact support.');
+                setError('Error saving booking. Please contact support.');
             }
         }
 

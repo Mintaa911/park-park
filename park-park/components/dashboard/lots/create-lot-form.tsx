@@ -14,6 +14,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { useInsertMutation, useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 // Zod schema for form validation
 const createLotSchema = z.object({
@@ -99,11 +100,14 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
         'lot_id',
         {
             onSuccess: () => {
+                toast.success("Lot created successfully");
                 form.reset();
                 setIsLotModalOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['lots', userId] });
             },
             onError: (error) => {
-                console.error(error.message)
+                console.error("Error creating lot", error);
+                toast.error("Error creating lot");
             }
         }
     )
@@ -113,12 +117,14 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
         'lot_id',
         {
             onSuccess: () => {
-                queryClient.invalidateQueries({ queryKey: ['lots'] });
+                toast.success("Lot updated successfully");
                 form.reset();
                 setIsLotModalOpen(false);
+                queryClient.invalidateQueries({ queryKey: ['lots', userId] });
             },
             onError: (error) => {
-                console.error(error.message)
+                console.error("Error updating lot", error);
+                toast.error("Error updating lot");
             }
         }
     )
@@ -154,7 +160,8 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
             }
 
         } catch (error) {
-            console.error('Error creating lot:', error);
+            console.error("Error creating/updating lot", error);
+            toast.error("Error creating/updating lot");
         } finally {
             setIsSubmitting(false);
         }

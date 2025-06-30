@@ -4,7 +4,6 @@ import { Hero } from "@/components/hero";
 import Link from "next/link";
 import { type LucideProps, CarFront } from "lucide-react";
 
-
 export default function Home() {
   const Icons = {
     logo: (props: LucideProps) => <CarFront {...props} />,

@@ -1,75 +1,58 @@
 "use client"
 
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calendar } from "lucide-react";
+import { ArrowRight, Calendar, ChevronDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Trash2 } from "lucide-react";
 import { ParkingLot, ParkingSchedule } from "@/types";
-import { useDeleteMutation, useQuery as useSupabaseQuery, useInsertMutation } from "@supabase-cache-helpers/postgrest-react-query";
+import { useDeleteMutation, useQuery as useSupabaseQuery } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getLotSchedules } from "@/lib/supabase/queries/schedule";
 import { formatCurrency, formatTime } from "@/lib/utils";
 import ScheduleForm from "./schedule-form";
 import { getPriceTiers } from "@/lib/supabase/queries/price-tier";
 import { useEffect, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { FormControl, FormField, FormItem, FormLabel, Form } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import z from "zod";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Badge } from "@/components/ui/badge";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import PriceTierForm from "./price-tier-form";
+import { toast } from "sonner";
 
 interface ScheduleProps {
     selectedLot: ParkingLot;
 }
 
-const formSchema = z.object({
-    price: z.number().min(0),
-    maxHour: z.number().min(0),
-})
 
-type FormData = z.infer<typeof formSchema>;
+type FilterType = 'all' | 'regular' | 'event';
 
 export default function Schedule({ selectedLot }: ScheduleProps) {
     const [selectedSchedule, setSelectedSchedule] = useState<ParkingSchedule | null>(null);
-    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [filterType, setFilterType] = useState<FilterType>('all');
     const supabase = createClient();
-    const form = useForm<FormData>({
-        resolver: zodResolver(formSchema),
-        defaultValues: {
-            price: 0,
-            maxHour: 0,
-        },
-    })
-
-    useEffect(() => {
-        if (selectedSchedule && selectedSchedule.schedule_id) {
-            form.reset();
-        }
-    }, [selectedSchedule, form])
+    const queryClient = useQueryClient();
 
     const { data: schedules, isLoading: isLoadingSchedules } = useSupabaseQuery(getLotSchedules(supabase, selectedLot.lot_id))
+
+    // Filter schedules based on selected filter type
+    const filteredSchedules = schedules?.filter((schedule) => {
+        if (filterType === 'all') return true;
+        if (filterType === 'regular') return !schedule.is_event;
+        if (filterType === 'event') return schedule.is_event;
+        return true;
+    }) || [];
+
+    // Clear selected schedule if it's filtered out
+    useEffect(() => {
+        if (selectedSchedule && !filteredSchedules.find(s => s.schedule_id === selectedSchedule.schedule_id)) {
+            setSelectedSchedule(null);
+        }
+    }, [filteredSchedules, selectedSchedule])
+
     const query = useQuery({
         queryKey: ['price-tiers', selectedSchedule?.schedule_id],
         queryFn: () => getPriceTiers(supabase, selectedSchedule?.schedule_id ?? ''),
         enabled: !!selectedSchedule?.schedule_id
     })
-
-    const { mutateAsync: createPriceTier, isPending: isCreatingPriceTier } = useInsertMutation(
-        supabase.from('price_tiers'),
-        ['price_id'],
-        'price_id',
-        {
-            onSuccess: () => {
-                console.log("Price tier created successfully");
-            },
-            onError: (error) => {
-                console.error("Error creating price tier", error);
-            }
-        }
-    )
 
     const { mutateAsync: deleteSchedule } = useDeleteMutation(
         supabase.from('schedules'),
@@ -77,30 +60,18 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
         'schedule_id',
         {
             onSuccess: () => {
-                console.log("Schedule deleted successfully");
+                toast.success("Schedule deleted successfully");
+                queryClient.invalidateQueries({ queryKey: ['schedules', selectedLot.lot_id] })
             },
             onError: (error) => {
                 console.error("Error deleting schedule", error);
+                toast.error("Error deleting schedule");
             }
         }
     )
 
     const handleViewTier = (schedule: ParkingSchedule) => {
         setSelectedSchedule(schedule);
-    }
-
-    const handleCreateTier = (data: FormData) => {
-        if (selectedSchedule && selectedSchedule.schedule_id) {
-            createPriceTier([
-                {
-                    schedule_id: selectedSchedule.schedule_id,
-                    price: data.price,
-                    maxHour: data.maxHour,
-                }
-            ])
-        }
-        setIsModalOpen(false);
-        form.reset();
     }
 
     const getWeekDay = (day: number) => {
@@ -126,19 +97,47 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
         <div>
             <div className="flex justify-between items-center mb-6">
                 <h3 className="text-xl font-semibold">Parking Schedules</h3>
-                <ScheduleForm
-                    selectedLot={selectedLot}
-                />
+                <div className="flex items-center gap-4">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-gray-600">Filter:</span>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-xs">
+                                    {filterType === 'all' ? 'All Schedules' :
+                                        filterType === 'regular' ? 'Regular Schedules' : 'Event Schedules'}
+                                    <ChevronDown className="w-3 h-3 ml-1" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={() => setFilterType('all')}>
+                                    All Schedules
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setFilterType('regular')}>
+                                    Regular Schedules
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => setFilterType('event')}>
+                                    Event Schedules
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <span className="text-xs text-gray-500 ml-2">
+                            {filteredSchedules.length} of {schedules?.length || 0} schedules
+                        </span>
+                    </div>
+                    <ScheduleForm
+                        selectedLot={selectedLot}
+                    />
+                </div>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
                 {
-                    !isLoadingSchedules && schedules && schedules.length > 0 ? (
+                    !isLoadingSchedules && filteredSchedules && filteredSchedules.length > 0 ? (
                         <div className="grid gap-4">
-                            {schedules.map((schedule) => (
+                            {filteredSchedules.map((schedule) => (
                                 <Card key={schedule.schedule_id}
                                     onClick={() => handleViewTier(schedule)}
-                                    className={`shadow-none border-b border-gray-200 transition-all duration-200 ${selectedSchedule?.schedule_id === schedule.schedule_id
+                                    className={`shadow-none border-b border-gray-200 transition-all duration-200 h-fit ${selectedSchedule?.schedule_id === schedule.schedule_id
                                         ? 'ring-2 ring-blue-500 bg-blue-50 border-blue-200'
                                         : 'hover:bg-gray-50'
                                         }`}>
@@ -189,8 +188,18 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                     ) : (
                         <div className="text-center py-8 text-gray-500">
                             <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
-                            <p>No schedules available for this parking lot.</p>
-                            <p className="text-sm">Create your first schedule to start accepting bookings.</p>
+                            <p>
+                                {filterType === 'all'
+                                    ? "No schedules available for this parking lot."
+                                    : `No ${filterType} schedules available.`
+                                }
+                            </p>
+                            <p className="text-sm">
+                                {filterType === 'all'
+                                    ? "Create your first schedule to start accepting bookings."
+                                    : `Create a ${filterType} schedule or switch to a different filter.`
+                                }
+                            </p>
                         </div>
                     )
                 }
@@ -205,77 +214,36 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                                             <p className="font-semibold flex items-center gap-1">{tier.maxHour} hours</p>
                                             <h4 className="font-semibold text-lg">{formatCurrency(tier.price)}</h4>
                                         </div>
-                                        <div className="flex gap-2 items-center">
-                                            <p>
-                                                {
-                                                    selectedSchedule?.is_event && (formatTime(selectedSchedule.event_start))
-                                                }
-                                                {!selectedSchedule?.is_event && selectedSchedule?.start_time && (formatTime(selectedSchedule?.start_time))}
-                                            </p>
-                                            <ArrowRight className="w-4 h-4" />
-                                            <p>
-                                                {
-                                                    selectedSchedule?.is_event && (formatTime(selectedSchedule.event_end))
-                                                }
-                                                {!selectedSchedule?.is_event && selectedSchedule?.end_time && (formatTime(selectedSchedule?.end_time))}
-                                            </p>
+                                        <div className="flex justify-between items-center">
+                                            <div className="flex gap-2 items-center">
+                                                <p>
+                                                    {
+                                                        selectedSchedule?.is_event && (formatTime(selectedSchedule.event_start))
+                                                    }
+                                                    {!selectedSchedule?.is_event && selectedSchedule?.start_time && (formatTime(selectedSchedule?.start_time))}
+                                                </p>
+                                                <ArrowRight className="w-4 h-4" />
+                                                <p>
+                                                    {
+                                                        selectedSchedule?.is_event && (formatTime(selectedSchedule.event_end))
+                                                    }
+                                                    {!selectedSchedule?.is_event && selectedSchedule?.end_time && (formatTime(selectedSchedule?.end_time))}
+                                                </p>
+                                            </div>
+                                            <PriceTierForm
+                                                sechuledId={selectedSchedule?.schedule_id ?? ''}
+                                                priceTier={tier}
+                                            />
                                         </div>
                                     </div>
                                 ))}
                             </div>
                             <div className="flex justify-center mt-8">
-                                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button variant="default" size="sm">Create Price Tier</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>Create Price Tier</DialogTitle>
-                                        </DialogHeader>
-                                        <Form {...form}>
-                                            <form onSubmit={form.handleSubmit(handleCreateTier)} className="space-y-4">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="price"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Price</FormLabel>
-                                                            <FormControl>
-                                                                <Input
-                                                                    type="number"
-                                                                    placeholder="e.g., 100"
-                                                                    {...field}
-                                                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                                                />
-                                                            </FormControl>
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={form.control}
-                                                    name="maxHour"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Max Hour</FormLabel>
-                                                            <FormControl>
-                                                                <Input
-                                                                    type="number"
-                                                                    placeholder="e.g., 24"
-                                                                    {...field}
-                                                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                                                />
-                                                            </FormControl>
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <DialogFooter>
-                                                    <Button variant="outline" onClick={() => setIsModalOpen(false)} type="button">Cancel</Button>
-                                                    <Button variant="default" type="submit" disabled={isCreatingPriceTier}>{isCreatingPriceTier ? "Creating..." : "Create"}</Button>
-                                                </DialogFooter>
-                                            </form>
-                                        </Form>
-                                    </DialogContent>
-                                </Dialog>
+                                {selectedSchedule?.schedule_id && (
+                                    <PriceTierForm
+                                        sechuledId={selectedSchedule.schedule_id}
+                                    />
+                                )}
                             </div>
                         </div>
                     ) : selectedSchedule?.schedule_id ? (
@@ -283,58 +251,9 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                             <p>No price tiers available for this schedule.</p>
                             <p className="text-sm mb-4">Create your first price tier to start accepting bookings.</p>
                             <div className="flex justify-center mt-8">
-                                <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-                                    <DialogTrigger asChild>
-                                        <Button variant="default" size="sm">Create Price Tier</Button>
-                                    </DialogTrigger>
-                                    <DialogContent>
-                                        <DialogHeader>
-                                            <DialogTitle>Create Price Tier</DialogTitle>
-                                        </DialogHeader>
-                                        <Form {...form}>
-                                            <form onSubmit={form.handleSubmit(handleCreateTier)} className="space-y-4">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="price"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Price</FormLabel>
-                                                            <FormControl>
-                                                                <Input
-                                                                    type="number"
-                                                                    placeholder="e.g., 100"
-                                                                    {...field}
-                                                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                                                />
-                                                            </FormControl>
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <FormField
-                                                    control={form.control}
-                                                    name="maxHour"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Max Hour</FormLabel>
-                                                            <FormControl>
-                                                                <Input
-                                                                    type="number"
-                                                                    placeholder="e.g., 24"
-                                                                    {...field}
-                                                                    onChange={(e) => field.onChange(Number(e.target.value))}
-                                                                />
-                                                            </FormControl>
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                                <DialogFooter>
-                                                    <Button variant="outline" onClick={() => setIsModalOpen(false)} type="button">Cancel</Button>
-                                                    <Button variant="default" type="submit" disabled={isCreatingPriceTier}>{isCreatingPriceTier ? "Creating..." : "Create"}</Button>
-                                                </DialogFooter>
-                                            </form>
-                                        </Form>
-                                    </DialogContent>
-                                </Dialog>
+                                <PriceTierForm
+                                    sechuledId={selectedSchedule.schedule_id}
+                                />
                             </div>
                         </div>
                     ) : (
