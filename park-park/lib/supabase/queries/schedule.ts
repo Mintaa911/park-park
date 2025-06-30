@@ -17,7 +17,10 @@ export async function getScheduleBySlug(client: TypedSupabaseClient, scheduleSlu
 export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date, lot_id: string) {
     try {
         const { data: eventSchedule, error: eventScheduleError } = await client.from('schedules')
-        .select('*')
+        .select(`
+            *,
+            price_tiers(*)
+        `)
         .eq('lot_id', lot_id)
         .eq('is_event', true)
         .lte('event_start', date.toISOString())
@@ -30,7 +33,10 @@ export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date,
         const day = getDayNumber(date)
 
         const { data: regularSchedule, error: regularScheduleError } = await client.from('schedules')  
-        .select('*')
+        .select(`
+            *,
+            price_tiers(*)
+        `)
         .eq('lot_id', lot_id)
         .eq('is_event', false)
         .contains('days', [day])

@@ -7,9 +7,9 @@ import { getSchedulesByDay } from '@/lib/supabase/queries/schedule';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, MapPin, Phone } from 'lucide-react';
+import { ArrowRight, Clock, MapPin } from 'lucide-react';
 import { useQuery } from '@supabase-cache-helpers/postgrest-react-query';
-import { formatTime, getImageUrl } from '@/lib/utils';
+import { formatCurrency, formatTime, getImageUrl } from '@/lib/utils';
 import { useQuery as useTanstackQuery } from '@tanstack/react-query';
 
 
@@ -54,24 +54,6 @@ export default function ParkingLotPage() {
         );
     }
 
-    const getWeekDay = (day: number) => {
-        switch (day) {
-            case 1:
-                return "Mon"
-            case 2:
-                return "Tue"
-            case 3:
-                return "Wed"
-            case 4:
-                return "Thu"
-            case 5:
-                return "Fri"
-            case 6:
-                return "Sat"
-            case 7:
-                return "Sun"
-        }
-    }
 
     return (
         <div className="min-h-screen">
@@ -82,10 +64,6 @@ export default function ParkingLotPage() {
                         <div className="flex items-center gap-1">
                             <MapPin className="h-4 w-4" />
                             <span>{lot.location}</span>
-                        </div>
-                        <div className="flex items-center gap-1">
-                            <Phone className="h-4 w-4" />
-                            <span>{lot.phone}</span>
                         </div>
                         <Badge variant={lot.status === 'OPEN' ? 'default' : 'secondary'}>
                             {lot.status}
@@ -149,52 +127,44 @@ export default function ParkingLotPage() {
                         </Card>
                     ) : (
                         <div className="md:grid md:grid-cols-2 md:gap-8 h-full">
-                            <div className="space-y-4  px-4 py-2 overflow-y-auto">
-                                {schedules.data?.map((schedule) => (
-                                    <Card key={schedule.schedule_id}
-                                        className={`shadow-none border-b border-gray-200 transition-all duration-200`}>
-                                        <CardContent className="p-4">
-                                            <div className="flex justify-between items-start mb-3">
-                                                <div>
-                                                    <h4 className={`font-semibold text-lg`}>{schedule.name}</h4>
-                                                    <p className={`flex items-center gap-1`}>{schedule.description}</p>
-                                                </div>
-                                            </div>
-                                            {!schedule.is_event && (
-                                                <div className="flex gap-2 py-2">
-                                                    <span>Working Days</span>
-                                                    {schedule.days.map((day: number) => {
-                                                        return <Badge key={day} variant="outline" className="bg-blue-500 text-white">{getWeekDay(day)}</Badge>
-
-                                                    })}
-                                                </div>
-                                            )}
-                                            <div className="flex items-center gap-4 justify-between">
-                                                <div className="flex flex-1 gap-12">
-                                                    <div>
-                                                        <p>{schedule.is_event ? "Event Start" : "Open Time"}</p>
-                                                        <p>{schedule.is_event ? formatTime(schedule.event_start) : formatTime(schedule.start_time)}</p>
+                            {schedules.data?.map((schedule) => (
+                                <div key={schedule.schedule_id} className=" space-y-4">
+                                    {schedule.price_tiers.map((price_tier) => (
+                                        <Card key={price_tier.price_id}
+                                            className={`shadow-none border-b border-gray-200 transition-all duration-200`}>
+                                            <CardContent className="p-4">
+                                                <div
+                                                    key={price_tier.price_id}
+                                                    className={`space-y-2`}
+                                                    onClick={() => { }}
+                                                >
+                                                    <div className="flex justify-between w-full">
+                                                        <p className="font-semibold flex items-center gap-1">{price_tier.maxHour} hours</p>
+                                                        <h4 className="font-semibold text-lg">{formatCurrency(price_tier.price)}</h4>
                                                     </div>
-                                                    <div>
-                                                        <p>{schedule.is_event ? "Event End" : "Close Time"}</p>
-                                                        <p>{schedule.is_event ? formatTime(schedule.event_end) : formatTime(schedule.end_time)}</p>
+                                                    <div className="flex gap-2 items-center">
+                                                        <p>
+                                                            {formatTime(new Date().toISOString())}
+                                                        </p>
+                                                        <ArrowRight className="w-4 h-4" />
+                                                        <p>
+                                                            {formatTime(new Date(Date.now() + 1000 * 60 * 60 * price_tier.maxHour).toISOString())}
+                                                        </p>
                                                     </div>
                                                 </div>
-                                                <div className="flex items-center gap-2">
-                                                    <Badge variant="outline" className={`${schedule.is_event ? "bg-blue-500 text-white" : "bg-gray-500 text-white"}`}>{schedule.is_event ? "Event" : "Regular"}</Badge>
+                                                <div className="mt-4 flex justify-end">
+                                                    <Button className="" onClick={() => {
+                                                        window.location.href = `/checkout/${lot.lot_id}?scheduleId=${schedule.schedule_id}&priceTierId=${price_tier.price_id}`;
+                                                    }}>Book Now</Button>
                                                 </div>
-                                            </div>
-                                            <div className="mt-4">
-                                                <Button className="w-full" onClick={() => {
-                                                    window.location.href = `/checkout/${lotSlug}?scheduleId=${schedule.schedule_id}`;
-                                                }}>view details</Button>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
-                                ))}
-                            </div>
+                                            </CardContent>
+                                        </Card>
+                                    ))}
+                                </div>
 
-                            <div></div>
+                            ))}
+
+
                         </div>
                     )}
                 </div>

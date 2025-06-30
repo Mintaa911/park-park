@@ -5,13 +5,13 @@ import { useStripe, useElements, CardNumberElement, CardExpiryElement, CardCvcEl
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { CheckCircle } from 'lucide-react';
-import { ParkingLot, ParkingSchedule, PriceTier } from '@/types';
+import { PriceTier } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 
 interface CheckoutFormProps {
-    schedule: ParkingSchedule;
-    lot: ParkingLot;
+    schedule_id: string;
+    lot_id: string;
     priceTier: PriceTier;
     customerInfo: {
         email: string;
@@ -37,7 +37,7 @@ const cardElementOptions = {
     },
 };
 
-export function CheckoutForm({ schedule, lot, customerInfo, clientSecret, priceTier }: CheckoutFormProps) {
+export function CheckoutForm({ schedule_id, lot_id, customerInfo, clientSecret, priceTier }: CheckoutFormProps) {
     const router = useRouter();
     const stripe = useStripe();
     const elements = useElements();
@@ -92,8 +92,8 @@ export function CheckoutForm({ schedule, lot, customerInfo, clientSecret, priceT
                 const supabase = createClient();
                 
                 const { error: dbError } = await supabase.from('orders').insert({
-                    lot_id: lot.lot_id,
-                    schedule_id: schedule.schedule_id,
+                    lot_id: lot_id,
+                    schedule_id: schedule_id,
                     email: customerInfo.email,
                     phone: customerInfo.phone,
                     license_plate: customerInfo.licensePlate,
