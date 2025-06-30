@@ -25,7 +25,7 @@ export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date,
 
 
         if (eventScheduleError) throw eventScheduleError;
-        if(eventSchedule) return eventSchedule
+        if(eventSchedule.length > 0) return eventSchedule
 
         const day = getDayNumber(date)
 
