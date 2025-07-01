@@ -24,4 +24,15 @@ export type PriceTier = Tables<'price_tiers'>
 export interface PickerFile extends File {
     preview: string;
     url?: string;
-  }
+}
+
+export interface emailBody {
+    email: string;
+    stripe_payment_id: string;
+    lot_name: string;
+    location: string;
+    start_time: string;
+    end_time: string;
+    session_id: string;
+    amount_paid: number;
+}

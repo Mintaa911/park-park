@@ -15,6 +15,7 @@ import { useInsertMutation, useUpdateMutation } from "@supabase-cache-helpers/po
 import { createClient } from "@/lib/supabase/client";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Zod schema for form validation
 const createLotSchema = z.object({
@@ -37,7 +38,8 @@ const createLotSchema = z.object({
     amenities: z.string().optional(),
     status: z.enum([LotStatus.OPEN, LotStatus.CLOSED], {
         required_error: "Status is required"
-    })
+    }),
+    is_24_hours: z.boolean().optional(),
 });
 
 type CreateLotFormData = z.infer<typeof createLotSchema>;
@@ -65,6 +67,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
             open: lotData?.open || "",
             close: lotData?.close || "",
             amenities: lotData?.amenities.join(",") || "",
+            is_24_hours: lotData?.is_24_hours || false,
         }
     });
 
@@ -85,6 +88,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                 open: selectedLot?.open || "",
                 close: selectedLot?.close || "",
                 amenities: selectedLot?.amenities.join(",") || "",
+                is_24_hours: selectedLot?.is_24_hours || false,
             })
         }
     }, [selectedLot, form]);
@@ -362,6 +366,19 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                                             <SelectItem value={LotStatus.CLOSED}>Inactive</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                        <FormField
+                            control={form.control}
+                            name="is_24_hours"
+                            render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Is 24 Hours</FormLabel>
+                                    <FormControl>
+                                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

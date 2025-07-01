@@ -223,7 +223,9 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
             <div className="flex items-center gap-2 text-gray-600">
               <Clock className="w-4 h-4" />
               <span>
-                {formatTime(selectedLot.open)} - {formatTime(selectedLot.close)}
+                {
+                  selectedLot.is_24_hours ? "24 Hours" : `${formatTime(selectedLot.open)} - ${formatTime(selectedLot.close)}`
+                }
               </span>
             </div>
           </div>

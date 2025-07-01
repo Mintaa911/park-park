@@ -9,12 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   MapPin,
   Car,
-  Users,
   Calendar,
   CheckCircle,
   XCircle,
   AlertCircle,
-  BarChart3,
   Activity,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,8 +23,8 @@ import { createClient } from '@/lib/supabase/client';
 import Overview from '@/components/dashboard/lots/overview';
 import Schedule from '@/components/dashboard/lots/schedule';
 import Booking from '@/components/dashboard/lots/booking';
-import Accounting from '@/components/dashboard/lots/accounting';
-import Employee from '@/components/dashboard/lots/employee';
+// import Accounting from '@/components/dashboard/lots/accounting';
+// import Employee from '@/components/dashboard/lots/employee';
 import LotForm from '@/components/dashboard/lots/create-lot-form';
 
 
@@ -141,7 +139,7 @@ export default function ParkingLotsPage() {
             <CardContent className="p-0">
               {user && !userLoading && (
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-5 bg-gray-50 rounded-none">
+                  <TabsList className="grid w-full grid-cols-5 bg-gray-50 rounded-none flex justify-between">
                     <TabsTrigger value="overview" className="flex items-center gap-2">
                       <Activity className="w-4 h-4" />
                       <span className="hidden md:block">Overview</span>
@@ -154,14 +152,14 @@ export default function ParkingLotsPage() {
                       <Car className="w-4 h-4" />
                       <span className="hidden md:block">Bookings</span>
                     </TabsTrigger>
-                    <TabsTrigger value="accounting" className="flex items-center gap-2">
+                    {/* <TabsTrigger value="accounting" className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4" />
                       <span className="hidden md:block">Accounting</span>
                     </TabsTrigger>
                     <TabsTrigger value="managers" className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
                       <span className="hidden md:block">Managers</span>
-                    </TabsTrigger>
+                    </TabsTrigger> */}
                   </TabsList>
 
                   <TabsContent value="overview" className="p-6 space-y-6">
@@ -176,13 +174,13 @@ export default function ParkingLotsPage() {
                     <Booking selectedLot={selectedLot} />
                   </TabsContent>
 
-                  <TabsContent value="accounting" className="p-6">
+                  {/* <TabsContent value="accounting" className="p-6">
                     <Accounting />
                   </TabsContent>
 
                   <TabsContent value="managers" className="p-6">
                     <Employee />
-                  </TabsContent>
+                  </TabsContent> */}
                 </Tabs>
               )}
             </CardContent>

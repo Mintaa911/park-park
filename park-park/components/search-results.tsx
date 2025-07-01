@@ -40,7 +40,7 @@ export function SearchResults({ results, isLoading, searchQuery }: SearchResults
     return (
         <div className="mt-4 max-h-96 overflow-y-auto">
             {results.map((lot) => (
-                <Link key={lot.lot_id} href={`/${lot.slug}`} className="flex items-center gap-2 px-4 py-2">
+                <Link key={lot.lot_id} href={`/lot/${lot.slug}`} className="flex items-center gap-2 px-4 py-2">
                     <MapPin className="w-4 h-4" />
                     <p className="">{lot.name}</p>
                     <span className="text-xs text-gray-600 truncate">{lot.location}</span>

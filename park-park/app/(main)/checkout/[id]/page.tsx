@@ -14,6 +14,7 @@ import { Elements } from '@stripe/react-stripe-js';
 import { CheckoutForm } from './checkout-form';
 import { formatCurrency, formatTime } from '@/lib/utils';
 import { getPriceTierById } from '@/lib/supabase/queries/price-tier';
+import { getLotById } from '@/lib/supabase/queries/lot';
 
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -43,6 +44,7 @@ export default function CheckoutPage() {
     const [clientSecret, setClientSecret] = useState<string>('');
 
     const { data: priceTier, isLoading: priceTierLoading, error: priceTierError } = useQuery(getPriceTierById(supabase, priceTierId!));
+    const { data: lot } = useQuery(getLotById(supabase, lotId!));
 
 
     const handleInputChange = (field: keyof CheckoutFormData, value: string) => {
@@ -209,6 +211,8 @@ export default function CheckoutPage() {
                                         <CheckoutForm
                                             schedule_id={scheduleId}
                                             lot_id={lotId}
+                                            lot_name={lot?.name || ''}
+                                            location={lot?.location || ''}
                                             customerInfo={formData}
                                             clientSecret={clientSecret}
                                             priceTier={priceTier}

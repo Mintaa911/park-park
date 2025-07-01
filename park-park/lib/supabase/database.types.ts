@@ -18,6 +18,7 @@ export type Database = {
           description_tag: string | null
           employees: string[]
           images: string[]
+          is_24_hours: boolean | null
           latitude: string | null
           location: string
           longitude: string | null
@@ -39,6 +40,7 @@ export type Database = {
           description_tag?: string | null
           employees: string[]
           images: string[]
+          is_24_hours?: boolean | null
           latitude?: string | null
           location: string
           longitude?: string | null
@@ -60,6 +62,7 @@ export type Database = {
           description_tag?: string | null
           employees?: string[]
           images?: string[]
+          is_24_hours?: boolean | null
           latitude?: string | null
           location?: string
           longitude?: string | null
@@ -415,14 +418,4 @@ export type CompositeTypes<
   : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
     ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never
-
-export const Constants = {
-  public: {
-    Enums: {
-      lot_status: ["OPEN", "CLOSED"],
-      payment_status: ["PENDING", "PAID"],
-      Roles: ["ADMIN", "OWNER", "CUSTOMER", "SUPERVISOR"],
-      vehicle_type: ["STANDARD", "OVERSIZE"],
-    },
-  },
-} as const 
+ 

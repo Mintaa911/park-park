@@ -6,6 +6,10 @@ export function getLotSchedules(client: TypedSupabaseClient, lot_id: string) {
     return client.from('schedules').select('*').eq('lot_id', lot_id)
 }
 
+export function getLotSchedulesCount(client: TypedSupabaseClient) {
+    return client.from('schedules').select('*', { count: 'exact', head: true })
+}
+
 export function getScheduleByScheduleId(client: TypedSupabaseClient, schedule_id: string) {
     return client.from('schedules').select('*').eq('schedule_id', schedule_id).maybeSingle();
 }

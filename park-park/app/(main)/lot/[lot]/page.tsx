@@ -74,9 +74,7 @@ export default function ParkingLotPage() {
                     <h3 className="font-semibold mb-2">Operating Hours</h3>
                     <div className="flex items-center gap-2 text-muted-foreground">
                         <Clock className="h-4 w-4" />
-                        <span>
-                            {lot.open ? `${lot.open} - ${lot.close || '24/7'}` : '24/7'}
-                        </span>
+                        {lot.is_24_hours ? "24 Hours" : `${lot.open} - ${lot.close || '24/7'}`}
                     </div>
                 </div>
             </div>

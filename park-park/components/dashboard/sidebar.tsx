@@ -8,13 +8,9 @@ import { Badge } from '@/components/ui/badge';
 import { 
   Home,
   Car,
-  BarChart3,
-  Settings,
   User,
   LogOut,
   ChevronDown,
-  HelpCircle,
-  FileText,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -37,7 +33,6 @@ const sidebarItems: SidebarItem[] = [
       title: 'Parking Lots',
       href: '/dashboard/lots',
       icon: Car,
-      badge: '3',
     },
     // {
     //   title: 'Bookings',
@@ -65,29 +60,29 @@ const sidebarItems: SidebarItem[] = [
     //     { title: 'Refunds', href: '/dashboard/payments/refunds', icon: DollarSign },
     //   ],
     // },
-    {
-      title: 'Analytics',
-      href: '/dashboard/analytics',
-      icon: BarChart3,
-    },
-    {
-      title: 'Reports',
-      href: '/dashboard/reports',
-      icon: FileText,
-    },
+    // {
+    //   title: 'Analytics',
+    //   href: '/dashboard/analytics',
+    //   icon: BarChart3,
+    // },
+    // {
+    //   title: 'Reports',
+    //   href: '/dashboard/reports',
+    //   icon: FileText,
+    // },
   ];
   
   const bottomSidebarItems: SidebarItem[] = [
-    {
-      title: 'Settings',
-      href: '/dashboard',
-      icon: Settings,
-    },
-    {
-      title: 'Help & Support',
-      href: '/dashboard',
-      icon: HelpCircle,
-    },
+    // {
+    //   title: 'Settings',
+    //   href: '/dashboard',
+    //   icon: Settings,
+    // },
+    // {
+    //   title: 'Help & Support',
+    //   href: '/dashboard',
+    //   icon: HelpCircle,
+    // },
   ];
 
 export default function SidebarContent() {

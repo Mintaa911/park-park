@@ -54,6 +54,22 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
         enabled: !!selectedSchedule?.schedule_id
     })
 
+    const { mutateAsync: deletePriceTier } = useDeleteMutation(
+        supabase.from('price_tiers'),
+        ['price_id'],
+        'price_id',
+        {
+            onSuccess: () => {
+                toast.success("Price tier deleted successfully");
+                queryClient.invalidateQueries({ queryKey: ['price-tiers', selectedSchedule?.schedule_id] })
+            },
+            onError: (error) => {
+                console.error("Error deleting price tier", error);
+                toast.error("Error deleting price tier");
+            }
+        }
+    )
+
     const { mutateAsync: deleteSchedule } = useDeleteMutation(
         supabase.from('schedules'),
         ['schedule_id'],
@@ -178,7 +194,14 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                                                 </div>
                                             </div>
                                             <div className="flex items-center gap-2">
-                                                <Badge variant="outline" className={`${schedule.is_event ? "bg-blue-500 text-white" : "bg-gray-500 text-white"}`}>{schedule.is_event ? "Event" : "Regular"}</Badge>
+                                                <Badge variant="outline" className={`${schedule.is_event ? "bg-blue-500 text-white" : "bg-gray-500 text-white"}`}>
+                                                    {!schedule.is_event
+                                                        ? "Regular"
+                                                        : new Date(schedule.event_end ?? '').getTime() < new Date().getTime()
+                                                            ? "Event Passed"
+                                                            : "Event"
+                                                    }
+                                                </Badge>
                                             </div>
                                         </div>
                                     </CardContent>
@@ -230,10 +253,13 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                                                     {!selectedSchedule?.is_event && selectedSchedule?.end_time && (formatTime(selectedSchedule?.end_time))}
                                                 </p>
                                             </div>
-                                            <PriceTierForm
-                                                sechuledId={selectedSchedule?.schedule_id ?? ''}
-                                                priceTier={tier}
-                                            />
+                                            <div className="flex items-center gap-2">
+                                                <PriceTierForm
+                                                    sechuledId={selectedSchedule?.schedule_id ?? ''}
+                                                    priceTier={tier}
+                                                />
+                                                <Trash2 className="w-4 h-4" onClick={() => deletePriceTier({ price_id: tier.price_id })} />
+                                            </div>
                                         </div>
                                     </div>
                                 ))}

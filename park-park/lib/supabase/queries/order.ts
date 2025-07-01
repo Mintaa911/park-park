@@ -1,5 +1,8 @@
 import { TypedSupabaseClient } from "@/types";
 
+export function getOrdersCount(client: TypedSupabaseClient) {
+    return client.from('orders').select('*', { count: 'exact', head: true })
+}
 
 export function getLotOrders(client: TypedSupabaseClient, lot_id: string, plate_number?: string) {
     let query = client.from('orders').select('*').eq('lot_id', lot_id)
@@ -7,4 +10,16 @@ export function getLotOrders(client: TypedSupabaseClient, lot_id: string, plate_
         query = query.ilike('license_plate', `%${plate_number}%`)
     }
     return query.order('created_at', { ascending: false })
+}
+
+export function getOrderByPaymentIntentId(client: TypedSupabaseClient, payment_intent_id: string) {
+    return client
+    .from('orders')
+    .select(`*,
+        price_tiers(price_id, price, maxHour),
+        schedules(schedule_id, event_start, event_end, start_time, end_time, is_event),
+        lots(lot_id, name, location, description)
+        `)
+    .eq('stripe_payment_intent_id', payment_intent_id)
+    .maybeSingle()
 }

@@ -1,7 +1,12 @@
 import { ParkingLot, TypedSupabaseClient } from "@/types";
 
+export function getLotById(client: TypedSupabaseClient, lotId: string) {
+    return client.from('lots').select('*').eq('lot_id', lotId).maybeSingle();
+}
 
-
+export function getLotsCount(client: TypedSupabaseClient) {
+    return client.from('lots').select('*', { count: 'exact', head: true })
+}
 
 export async function getLotsBySupervisor(client: TypedSupabaseClient, user_id: string) {
     const { data, error } = await client.from('lots').select('*').contains('supervisors', [user_id]);

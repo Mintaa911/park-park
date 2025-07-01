@@ -9,10 +9,13 @@ import { PriceTier } from '@/types';
 import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { parkingCheckoutEmail } from '@/lib/twillio/email-format';
 
 interface CheckoutFormProps {
     schedule_id: string;
     lot_id: string;
+    lot_name: string;
+    location: string;
     priceTier: PriceTier;
     customerInfo: {
         email: string;
@@ -38,7 +41,7 @@ const cardElementOptions = {
     },
 };
 
-export function CheckoutForm({ schedule_id, lot_id, customerInfo, clientSecret, priceTier }: CheckoutFormProps) {
+export function CheckoutForm({ schedule_id, lot_id, lot_name, location, customerInfo, clientSecret, priceTier }: CheckoutFormProps) {
     const router = useRouter();
     const stripe = useStripe();
     const elements = useElements();
@@ -111,10 +114,28 @@ export function CheckoutForm({ schedule_id, lot_id, customerInfo, clientSecret, 
                 }
 
                 setSuccess(true);
+                await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        subject: 'Parking Pass',
+                        to: customerInfo.email,
+                        html: parkingCheckoutEmail({
+                            email: customerInfo.email,
+                            stripe_payment_id: paymentIntent.id,
+                            lot_name: lot_name,
+                            location: location,
+                            start_time: new Date().toISOString(),
+                            end_time: new Date(new Date().getTime() + (1000 * 60 * 60 * priceTier.maxHour!)).toISOString(),
+                            session_id: paymentIntent.id,
+                            amount_paid: priceTier.price,
+                        }),
+                    }),
+                });
                 // You can redirect to a success page or show success message
                 setTimeout(() => {
-                    router.back();
-                }, 2000);
+                    router.push(`/checkout/success?session_id=${paymentIntent.id}`);
+                }, 500);
 
             } catch (err) {
                 console.error('Error saving booking:', err);

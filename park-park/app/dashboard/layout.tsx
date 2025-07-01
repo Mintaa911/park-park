@@ -5,6 +5,10 @@ import { getUser } from '@/lib/supabase/queries/user';
 import { createClient } from '@/lib/supabase/server';
 import { redirect } from 'next/navigation';
 import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { prefetchQuery } from '@supabase-cache-helpers/postgrest-react-query';
+import { getOrdersCount } from '@/lib/supabase/queries/order';
+import { getLotsCount } from '@/lib/supabase/queries/lot';
+import { getLotSchedulesCount } from '@/lib/supabase/queries/schedule';
 
 
 export default async function DashboardLayout({
@@ -19,6 +23,10 @@ export default async function DashboardLayout({
   if (!user) {
     redirect('/login');
   }
+
+  await prefetchQuery(queryClient, getOrdersCount(supabase))
+  await prefetchQuery(queryClient, getLotsCount(supabase))
+  await prefetchQuery(queryClient, getLotSchedulesCount(supabase))
 
   return (
     <HydrationBoundary state={dehydrate(queryClient)}>
