@@ -41,10 +41,10 @@ export default function SuccessPage() {
                         <div className="text-center space-y-4">
                             <div className="flex justify-center">
                                 <div className="relative w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center">
-                                    <Image 
-                                        src="/parking.png" 
-                                        alt="Park Park Logo" 
-                                        width={100} 
+                                    <Image
+                                        src="/parking.png"
+                                        alt="Park Park Logo"
+                                        width={100}
                                         height={100}
                                         className="rounded-full"
                                     />
@@ -70,22 +70,20 @@ export default function SuccessPage() {
                             </CardHeader>
                             <CardContent className="flex flex-col items-center gap-4 py-8">
                                 {/* Pass Number and License Plate */}
-                                <div className="w-full p-4 rounded-xl border-2">
-                                    <div className="text-center space-y-3">
-                                        <div className="text-sm text-blue-700 font-semibold tracking-wider uppercase">
-                                            Pass #{order?.stripe_payment_intent_id|| 'XXXXXXX'}
-                                        </div>
-                                        <div className="flex items-center justify-center gap-2 text-lg font-bold text-blue-900 bg-white px-4 py-2">
-                                            <Car className="w-4 h-4 text-blue-600" />
-                                            {order?.license_plate || 'XXXXXXX'}
-                                        </div>
+                                <div className="w-full md:p-4 rounded-xl border-2 text-center space-y-3">
+                                    <div className="text-sm text-blue-700 font-semibold tracking-wider uppercase">
+                                        Pass #{order?.stripe_payment_intent_id || 'XXXXXXX'}
+                                    </div>
+                                    <div className="flex items-center justify-center gap-2 text-lg font-bold text-blue-900 bg-white px-4 py-2">
+                                        <Car className="w-4 h-4 text-blue-600" />
+                                        {order?.license_plate || 'XXXXXXX'}
                                     </div>
                                 </div>
 
                                 <Separator className="my-2" />
 
                                 {/* Time Information */}
-                                <div className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-6 border-2 border-green-200">
+                                <div className="w-full bg-gradient-to-r from-green-50 to-emerald-50 rounded-xl p-2 md:p-6 border-2 border-green-200">
                                     <div className="flex justify-between items-center">
                                         <div className="flex flex-col items-center text-center">
                                             <span className="text-xs text-green-700 font-semibold uppercase tracking-wider">Park After</span>
@@ -100,7 +98,7 @@ export default function SuccessPage() {
                                             <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                                                 <span className="text-white font-bold text-lg">→</span>
                                             </div>
-                                            <span className="text-xs text-green-600 mt-1 font-medium">Valid for {order.price_tiers?.maxHour || 1}h</span>
+                                            <span className="text-xs text-center text-green-600 mt-1 font-medium">Valid for {order.price_tiers?.maxHour || 1}h</span>
                                         </div>
                                         <div className="flex flex-col items-center text-center">
                                             <span className="text-xs text-red-700 font-semibold uppercase tracking-wider">Exit Before</span>
