@@ -1,4 +1,3 @@
-
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
   
@@ -100,4 +99,20 @@ export function fromDatetimeLocalValue(value: Date): string {
 
   const offset = value.getTimezoneOffset() * 60000
   return new Date(value.getTime() + offset).toISOString()
+}
+
+export function formatDate(date: Date | string): string {
+  const d = new Date(date);
+  
+  const options: Intl.DateTimeFormatOptions = {
+    weekday: 'short',
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  };
+  
+  return d.toLocaleDateString('en-US', options);
 }

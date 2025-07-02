@@ -10,6 +10,7 @@ import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { parkingCheckoutEmail } from '@/lib/twillio/email-format';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface CheckoutFormProps {
     schedule_id: string;
@@ -48,6 +49,8 @@ export function CheckoutForm({ schedule_id, lot_id, lot_name, location, customer
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [success, setSuccess] = useState(false);
+
+    const queryClient = useQueryClient();
 
     const formatPrice = (price: number) => {
         return new Intl.NumberFormat('en-US', {
@@ -113,6 +116,8 @@ export function CheckoutForm({ schedule_id, lot_id, lot_name, location, customer
                     throw dbError;
                 }
 
+                queryClient.invalidateQueries({ queryKey: ['orders'] });
+                
                 setSuccess(true);
                 await fetch('/api/send-email', {
                     method: 'POST',
@@ -132,6 +137,7 @@ export function CheckoutForm({ schedule_id, lot_id, lot_name, location, customer
                         }),
                     }),
                 });
+
                 // You can redirect to a success page or show success message
                 setTimeout(() => {
                     router.push(`/checkout/success?session_id=${paymentIntent.id}`);
