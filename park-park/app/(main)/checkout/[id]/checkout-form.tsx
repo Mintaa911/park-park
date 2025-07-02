@@ -108,7 +108,7 @@ export function CheckoutForm({ schedule_id, lot_id, lot_name, location, customer
                     total_amount: priceTier.price,
                     price_tier: priceTier.price_id,
                     payment_status: 'PAID',
-                    start_time: new Date().toISOString(),
+                    start_time: new Date().toLocaleString('sv-SE'),
                     stripe_payment_intent_id: paymentIntent.id,
                 }).select().single();
 
@@ -130,8 +130,8 @@ export function CheckoutForm({ schedule_id, lot_id, lot_name, location, customer
                             stripe_payment_id: paymentIntent.id,
                             lot_name: lot_name,
                             location: location,
-                            start_time: new Date().toISOString(),
-                            end_time: new Date(new Date().getTime() + (1000 * 60 * 60 * priceTier.maxHour!)).toISOString(),
+                            start_time: new Date().toLocaleString('sv-SE'),
+                            end_time: new Date(new Date().getTime() + (1000 * 60 * 60 * priceTier.maxHour!)).toLocaleString('sv-SE'),
                             session_id: paymentIntent.id,
                             amount_paid: priceTier.price,
                         }),
