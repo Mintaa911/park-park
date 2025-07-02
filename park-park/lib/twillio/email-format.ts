@@ -32,19 +32,19 @@ export const parkingCheckoutEmail = (checkoutInfo: emailBody) => {
           <table style="width: 100%; font-size: 15px;">
             <tr style="border-bottom: 1px solid #e2e8f0;">
               <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Parking Pass ID:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748; font-family: 'Courier New', monospace;">${checkoutInfo.stripe_payment_id}</td>
+              <td style="padding: 12px 0; text-align: right; color: #2d3748; font-family: 'Courier New', monospace; word-wrap: break-word; overflow-wrap: break-word;">${checkoutInfo.stripe_payment_id}</td>
             </tr>
             <tr style="border-bottom: 1px solid #e2e8f0;">
               <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Location:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748;">${checkoutInfo.location}</td>
+              <td style="padding: 12px 0; text-align: right; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${checkoutInfo.location}</td>
             </tr>
             <tr style="border-bottom: 1px solid #e2e8f0;">
               <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Enter After:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748;">${start_time}</td>
+              <td style="padding: 12px 0; text-align: right; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${start_time}</td>
             </tr>
             <tr>
               <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Exit By:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748;">${end_time}</td>
+              <td style="padding: 12px 0; text-align: right; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${end_time}</td>
             </tr>
           </table>
         </div>
