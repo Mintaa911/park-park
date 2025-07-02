@@ -53,7 +53,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isLotModalOpen, setIsLotModalOpen] = useState(false);
     const [lotData, setLotData] = useState<ParkingLot | null>(selectedLot || null);
-    
+
     const form = useForm<CreateLotFormData>({
         resolver: zodResolver(createLotSchema),
         defaultValues: {
@@ -145,7 +145,8 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                 employees: [],
                 images: [],
                 qr_image: "",
-                slug: data.name.toLowerCase().replace(/ /g, '-')
+                slug: data.name.toLowerCase().replace(/ /g, '-'),
+                is_24_hours: data.is_24_hours ? true : false,
             };
 
             if (lotData) {
@@ -157,6 +158,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                     employees: lotData.employees,
                     supervisors: lotData.supervisors,
                     images: lotData.images,
+                    is_24_hours: lotData.is_24_hours ? true : false,
                 });
             } else {
 
@@ -295,6 +297,52 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                                 </FormItem>
                             )}
                         />
+                        <div className="flex  gap-4">
+                            {!form.watch('is_24_hours') && (
+                                <>
+                                    <FormField
+                                        control={form.control}
+                                        name="open"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Opening Time</FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                    <FormField
+                                        control={form.control}
+                                        name="close"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel>Closing Time</FormLabel>
+                                                <FormControl>
+                                                    <Input type="time" {...field} />
+                                                </FormControl>
+                                                <FormMessage />
+                                            </FormItem>
+                                        )}
+                                    />
+                                </>
+                            )}
+
+                            <FormField
+                                control={form.control}
+                                name="is_24_hours"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>24 Hours open</FormLabel>
+                                        <FormControl>
+                                            <Checkbox checked={field.value} onCheckedChange={field.onChange} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                        </div>
                         <div className="flex justify-between gap-4">
                             <FormField
                                 control={form.control}
@@ -304,32 +352,6 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                                         <FormLabel>Total Spaces</FormLabel>
                                         <FormControl>
                                             <Input type="number" placeholder="150" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="open"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Opening Time</FormLabel>
-                                        <FormControl>
-                                            <Input type="time" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="close"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Closing Time</FormLabel>
-                                        <FormControl>
-                                            <Input type="time" {...field} />
                                         </FormControl>
                                         <FormMessage />
                                     </FormItem>
@@ -366,19 +388,6 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                                             <SelectItem value={LotStatus.CLOSED}>Inactive</SelectItem>
                                         </SelectContent>
                                     </Select>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="is_24_hours"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Is 24 Hours</FormLabel>
-                                    <FormControl>
-                                        <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-                                    </FormControl>
                                     <FormMessage />
                                 </FormItem>
                             )}

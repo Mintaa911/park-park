@@ -27,7 +27,7 @@ export default async function Layout({ children, params }: LayoutProps){
     return (
         <HydrationBoundary state={dehydrate(queryClient)}>
             <div className="flex flex-col flex-1 ">
-                <nav className="w-full flex justify-center h-16 border-b">
+                <nav className="fixed top-0 left-0 right-0 z-50 w-full bg-white flex justify-center h-16 border-b">
                     <div className="w-full max-w-7xl flex justify-between items-center p-3 px-5 text-sm">
                         <div className="flex gap-5 items-center font-semibold">
                             <Link
@@ -43,7 +43,7 @@ export default async function Layout({ children, params }: LayoutProps){
                     </div>
                 </nav>
 
-                <main className="flex-1 overflow-auto w-full max-w-7xl mx-auto px-5 py-4 pt-8">
+                <main className="flex-1 overflow-auto w-full max-w-7xl mx-auto px-5 py-4 pt-20">
                     {children}
                 </main>
             </div>
