@@ -6,9 +6,9 @@ export const parkingCheckoutEmail = (checkoutInfo: emailBody) => {
   const start_time = formatDate(checkoutInfo.start_time);
   const end_time = formatDate(checkoutInfo.end_time);
     const emailHtml = `
-    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px; border-radius: 12px;">
+    <div style="font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; max-width: 500px; margin: 0 auto; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 10px; border-radius: 12px;">
       <!-- Main Content -->
-      <div style="background: white; border-radius: 8px; padding: 30px 24px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+      <div style="background: white; border-radius: 8px; padding: 15px 12px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
         <!-- Header with Logo -->
         <div style="text-align: center; margin-bottom: 30px;">
           <div style="margin-bottom: 10px;">
@@ -27,24 +27,24 @@ export const parkingCheckoutEmail = (checkoutInfo: emailBody) => {
         </div>
 
         <!-- Details Table -->
-        <div style="background: #f7fafc; border-radius: 8px; padding: 24px; margin-bottom: 24px;">
+        <div style="margin-bottom: 24px;">
           <h3 style="font-size: 18px; margin-bottom: 20px; color: #2d3748; font-weight: 600;">Reservation Details</h3>
           <table style="width: 100%; font-size: 15px;">
             <tr style="border-bottom: 1px solid #e2e8f0;">
-              <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Parking Pass ID:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748; font-family: 'Courier New', monospace; word-wrap: break-word; overflow-wrap: break-word;">${checkoutInfo.stripe_payment_id}</td>
+              <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Pass ID:</td>
+              <td style="padding: 12px 0; text-align: center; color: #2d3748; font-family: 'Courier New', monospace; word-wrap: break-word; overflow-wrap: break-word;">${checkoutInfo.stripe_payment_id.slice(0,16)}</td>
             </tr>
             <tr style="border-bottom: 1px solid #e2e8f0;">
               <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Location:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${checkoutInfo.location}</td>
+              <td style="padding: 12px 0; text-align: center; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${checkoutInfo.location}</td>
             </tr>
             <tr style="border-bottom: 1px solid #e2e8f0;">
               <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Enter After:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${start_time}</td>
+              <td style="padding: 12px 0; text-align: center; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${start_time}</td>
             </tr>
             <tr>
               <td style="padding: 12px 0; font-weight: 600; color: #4a5568;">Exit By:</td>
-              <td style="padding: 12px 0; text-align: right; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${end_time}</td>
+              <td style="padding: 12px 0; text-align: center; color: #2d3748; word-wrap: break-word; overflow-wrap: break-word;">${end_time}</td>
             </tr>
           </table>
         </div>
