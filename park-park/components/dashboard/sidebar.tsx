@@ -8,7 +8,6 @@ import { Badge } from '@/components/ui/badge';
 import {
   Home,
   Car,
-  User,
   ChevronDown,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
