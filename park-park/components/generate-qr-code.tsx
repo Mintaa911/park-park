@@ -28,7 +28,6 @@ export default function GenerateQrCode({ selectedLot }: QrCodeProps) {
     'lot_id',
     {
       onSuccess: () => {
-        console.log("Lot updated successfully");
         queryClient.invalidateQueries({ queryKey: ['lots'] });
       },
       onError: (error) => {
@@ -52,7 +51,7 @@ export default function GenerateQrCode({ selectedLot }: QrCodeProps) {
         document.body.appendChild(tempDiv);
         
         // Create QR code component
-        const qrValue = `${frontendBaseUrl}/${selectedLot.slug}`;
+        const qrValue = `${frontendBaseUrl}/lot/${selectedLot.slug}`;
         const qrElement = document.createElement('div');
         tempDiv.appendChild(qrElement);
         

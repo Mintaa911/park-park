@@ -68,10 +68,10 @@ export default function SuccessPage() {
                                 </div>
                                 <p className="text-sm">Keep this pass visible in your vehicle</p>
                             </CardHeader>
-                            <CardContent className="flex flex-col items-center gap-4 py-8">
+                            <CardContent className="flex flex-col items-center gap-4">
                                 {/* Pass Number and License Plate */}
                                 <div className="w-full md:p-4 rounded-xl border-2 text-center space-y-3">
-                                    <div className="text-sm text-blue-700 font-semibold tracking-wider uppercase">
+                                    <div className="text-sm text-blue-700 font-semibold tracking-wider uppercase pt-2">
                                         Pass #{order?.stripe_payment_intent_id || 'XXXXXXX'}
                                     </div>
                                     <div className="flex items-center justify-center gap-2 text-lg font-bold text-blue-900 bg-white px-4 py-2">

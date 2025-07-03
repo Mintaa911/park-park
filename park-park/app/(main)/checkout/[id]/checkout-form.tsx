@@ -116,7 +116,7 @@ export function CheckoutForm({ schedule_id, lot_id, lot_name, location, customer
                     throw dbError;
                 }
 
-                queryClient.invalidateQueries({ queryKey: ['orders', lot_id, ""] });
+                queryClient.invalidateQueries({ queryKey: ['orders', lot_id] });
                 
                 setSuccess(true);
                 await fetch('/api/send-email', {

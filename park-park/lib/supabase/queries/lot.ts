@@ -33,6 +33,6 @@ export function searchParkingLots(client: TypedSupabaseClient, searchQuery: stri
         .from('lots')
         .select('*')
         .eq('status', 'OPEN')
-        .or(`name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%,description.ilike.%${searchQuery}%`)
+        .or(`name.ilike.%${searchQuery}%,location.ilike.%${searchQuery}%`)
         .limit(10);
 }

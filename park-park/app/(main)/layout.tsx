@@ -37,9 +37,6 @@ export default async function Layout({ children, params }: LayoutProps){
                                 <Icons.logo className="w-8 h-8" /> ParkPark
                             </Link>
                         </div>
-                        <div className="hidden md:flex items-center gap-4">
-                            <AuthButton />
-                        </div>
                     </div>
                 </nav>
 
