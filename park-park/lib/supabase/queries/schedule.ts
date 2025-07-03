@@ -6,8 +6,12 @@ export function getLotSchedules(client: TypedSupabaseClient, lot_id: string) {
     return client.from('schedules').select('*').eq('lot_id', lot_id)
 }
 
-export function getLotSchedulesCount(client: TypedSupabaseClient) {
-    return client.from('schedules').select('*', { count: 'exact', head: true })
+export function getLotSchedulesCount(client: TypedSupabaseClient, lot_id?: string) {
+    let query = client.from('schedules').select('*', { count: 'exact', head: true })
+    if (lot_id) {
+        query = query.eq('lot_id', lot_id)
+    }
+    return query
 }
 
 export function getScheduleByScheduleId(client: TypedSupabaseClient, schedule_id: string) {

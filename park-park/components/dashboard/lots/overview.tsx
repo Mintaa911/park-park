@@ -40,7 +40,7 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
 
   const supabase = createClient();
 
-  const { count: scheduleCount } = useQuery(getLotSchedulesCount(supabase))
+  const { count: scheduleCount } = useQuery(getLotSchedulesCount(supabase, selectedLot.lot_id))
   const { count: bookingCount } = useQuery(getOrdersCount(supabase, selectedLot.lot_id))
 
   const { mutateAsync: updateLot } = useUpdateMutation(
