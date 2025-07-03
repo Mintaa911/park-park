@@ -1,5 +1,4 @@
 
-import { AuthButton } from "@/components/auth-button";
 import { Hero } from "@/components/hero";
 import Link from "next/link";
 import { type LucideProps, CarFront } from "lucide-react";
