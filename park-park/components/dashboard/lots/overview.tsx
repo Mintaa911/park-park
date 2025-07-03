@@ -11,11 +11,13 @@ import { z } from "zod";
 import FileUpload from "@/components/file-upload";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
+import { useQuery, useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { formatTime, getImageUrl } from "@/lib/utils";
 import GenerateQrCode from "@/components/generate-qr-code";
 import { useQueryClient } from "@tanstack/react-query";
 import LotForm from "./create-lot-form";
+import { getLotSchedulesCount } from "@/lib/supabase/queries/schedule";
+import { getOrdersCount } from "@/lib/supabase/queries/order";
 
 // Zod schema for form validation
 const uploadImagesSchema = z.object({
@@ -37,6 +39,9 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
   const queryClient = useQueryClient();
 
   const supabase = createClient();
+
+  const { count: scheduleCount } = useQuery(getLotSchedulesCount(supabase))
+  const { count: bookingCount } = useQuery(getOrdersCount(supabase, selectedLot.lot_id))
 
   const { mutateAsync: updateLot } = useUpdateMutation(
     supabase.from('lots'),
@@ -259,11 +264,11 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Active Schedules</span>
-              <span className="font-semibold">{2}</span>
+              <span className="font-semibold">{scheduleCount || 0}</span>
             </div>
             <div className="flex justify-between items-center">
               <span className="text-gray-600">Total Bookings</span>
-              <span className="font-semibold">{3}</span>
+              <span className="font-semibold">{bookingCount || 0}</span>
             </div>
 
           </CardContent>

@@ -1,7 +1,11 @@
 import { TypedSupabaseClient } from "@/types";
 
-export function getOrdersCount(client: TypedSupabaseClient) {
-    return client.from('orders').select('*', { count: 'exact', head: true })
+export function getOrdersCount(client: TypedSupabaseClient, lot_id?: string) {
+    let query = client.from('orders').select('*', { count: 'exact', head: true })
+    if (lot_id) {
+        query = query.eq('lot_id', lot_id)
+    }
+    return query
 }
 
 export function getLotOrders(client: TypedSupabaseClient, lot_id: string, plate_number?: string) {
