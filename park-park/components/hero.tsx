@@ -60,7 +60,7 @@ export function Hero() {
           </TabsList>
           <TabsContent value="hourly">
             <div className="relative">
-              <div className="flex gap-2 mt-4">
+              <div className="flex flex-col md:flex-row gap-2 mt-4">
                 <div className="relative flex-1">
                   <Input
                     type="text"

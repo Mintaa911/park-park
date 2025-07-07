@@ -20,8 +20,8 @@ export default async function DashboardLayout({
   const user = await getUser(supabase);
   const queryClient = new QueryClient();
 
-  if (!user) {
-    redirect('/login');
+  if (!user || user.role !== 'ADMIN') {
+    redirect('/auth/login');
   }
 
   await prefetchQuery(queryClient, getOrdersCount(supabase))

@@ -14,6 +14,7 @@ import {
   XCircle,
   AlertCircle,
   Activity,
+  BarChart3,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { LotStatus, ParkingLot, UserRole } from '@/types';
@@ -23,7 +24,7 @@ import { createClient } from '@/lib/supabase/client';
 import Overview from '@/components/dashboard/lots/overview';
 import Schedule from '@/components/dashboard/lots/schedule';
 import Booking from '@/components/dashboard/lots/booking';
-// import Accounting from '@/components/dashboard/lots/accounting';
+import Accounting from '@/components/dashboard/lots/accounting';
 // import Employee from '@/components/dashboard/lots/employee';
 import LotForm from '@/components/dashboard/lots/create-lot-form';
 
@@ -152,11 +153,11 @@ export default function ParkingLotsPage() {
                       <Car className="w-4 h-4" />
                       <span className="hidden md:block">Bookings</span>
                     </TabsTrigger>
-                    {/* <TabsTrigger value="accounting" className="flex items-center gap-2">
+                    <TabsTrigger value="accounting" className="flex items-center gap-2">
                       <BarChart3 className="w-4 h-4" />
                       <span className="hidden md:block">Accounting</span>
                     </TabsTrigger>
-                    <TabsTrigger value="managers" className="flex items-center gap-2">
+                    {/* <TabsTrigger value="managers" className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
                       <span className="hidden md:block">Managers</span>
                     </TabsTrigger> */}
@@ -174,11 +175,11 @@ export default function ParkingLotsPage() {
                     <Booking selectedLot={selectedLot} />
                   </TabsContent>
 
-                  {/* <TabsContent value="accounting" className="p-6">
+                  <TabsContent value="accounting" className="p-6">
                     <Accounting />
                   </TabsContent>
 
-                  <TabsContent value="managers" className="p-6">
+                  {/* <TabsContent value="managers" className="p-6">
                     <Employee />
                   </TabsContent> */}
                 </Tabs>

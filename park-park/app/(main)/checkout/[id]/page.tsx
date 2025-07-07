@@ -15,6 +15,8 @@ import { CheckoutForm } from './checkout-form';
 import { formatCurrency, formatTime } from '@/lib/utils';
 import { getPriceTierById } from '@/lib/supabase/queries/price-tier';
 import { getLotById } from '@/lib/supabase/queries/lot';
+import { STATES } from '@/lib/constants';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -196,14 +198,23 @@ export default function CheckoutPage() {
                                     </div>
                                     <div className="space-y-2">
                                         <Label htmlFor="licenseState">License State *</Label>
-                                        <Input
-                                            id="licenseState"
+                                        <Select
                                             required
                                             value={formData.licenseState}
-                                            onChange={(e) => handleInputChange('licenseState', e.target.value)}
-                                            placeholder="CA"
-                                            maxLength={2}
-                                        />
+                                            onValueChange={(value) => handleInputChange('licenseState', value)}
+                                            defaultValue={STATES[0].code}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select a state" />
+                                            </SelectTrigger>
+                                            <SelectContent position="popper" side="bottom" align="start" className="max-h-[200px] overflow-y-auto">
+                                                {STATES.map((state) => (
+                                                    <SelectItem key={state.code} value={state.code}>
+                                                        {state.name}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
                                     </div>
                                 </div>
                                 {clientSecret && priceTier && (

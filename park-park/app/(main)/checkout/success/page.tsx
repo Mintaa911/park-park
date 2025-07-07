@@ -33,14 +33,14 @@ export default function SuccessPage() {
     }
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50 p-4">
+        <div className="min-h-screen p-4">
             <div className="md:w-[70%] md:mx-auto max-w-2xl">
                 {order && (
                     <div className="space-y-6">
                         {/* Header with Logo and Success Message */}
                         <div className="text-center space-y-4">
                             <div className="flex justify-center">
-                                <div className="relative w-20 h-20 bg-white rounded-full shadow-lg flex items-center justify-center">
+                                <div className="relative w-60 h-30 flex items-center justify-center">
                                     <Image
                                         src="/parking.png"
                                         alt="Park Park Logo"

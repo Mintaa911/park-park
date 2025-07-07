@@ -57,9 +57,9 @@ export default function ParkingLotPage() {
 
     return (
         <div className="min-h-screen">
-            <div className="flex items-start justify-between">
+            <div className="flex flex-col md:flex-row gap-4 md:items-start md:justify-between">
                 <div className="flex-1">
-                    <h1 className="text-3xl font-bold mb-2">{lot.name}</h1>
+                    <h1 className="md:text-3xl font-bold mb-2">{lot.name}</h1>
                     <div className="flex items-center gap-4 text-sm opacity-90">
                         <div className="flex items-center gap-1">
                             <MapPin className="h-4 w-4" />
@@ -82,7 +82,7 @@ export default function ParkingLotPage() {
             <div className=" space-y-8 py-8">
                 {/* Lot Information Card */}
                 <div className="space-y-4">
-                    <div className='pr-8'>
+                    <div className='md:pr-8'>
                         <h3 className="font-semibold mb-2">Description</h3>
                         <p className="">
                             {lot.description || 'No description available'}
@@ -108,7 +108,7 @@ export default function ParkingLotPage() {
                     <h3 className="font-semibold mb-2">Facility Images</h3>
                     <div className="flex flex-wrap gap-2">
                         {lot.images.map((image: string, index: number) => (
-                            <img key={image} src={getImageUrl(`lots/${image}`)} alt={`${lot.name} image ${index + 1}`} className="w-64 h-32 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow" />
+                            <img key={image} src={getImageUrl(`lots/${image}`)} alt={`${lot.name} image ${index + 1}`} className="w-24 h-16 md:w-64 md:h-32 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow" />
                         ))}
                     </div>
                 </div>
@@ -124,7 +124,7 @@ export default function ParkingLotPage() {
                             </CardContent>
                         </Card>
                     ) : (
-                        <div className="md:grid md:grid-cols-2 md:gap-8 h-full">
+                        <div className="md:w-[40%]  h-full">
                             {schedules.data?.map((schedule) => (
                                 <div key={schedule.schedule_id} className=" space-y-4">
                                     {schedule.price_tiers.map((price_tier) => (
@@ -133,7 +133,7 @@ export default function ParkingLotPage() {
                                             <CardContent className="p-4">
                                                 <div
                                                     key={price_tier.price_id}
-                                                    className={`space-y-2`}
+                                                    className={`space-y-2 text-sm md:text-base`}
                                                     onClick={() => { }}
                                                 >
                                                     <div className="flex justify-between w-full">

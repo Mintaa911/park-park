@@ -193,7 +193,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                     </Button>
                 )}
             </DialogTrigger>
-            <DialogContent className="sm:max-w-[600px] max-h-[90vh]">
+            <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
                 <DialogHeader>
                     <DialogTitle>{lotData ? "Edit Parking Lot" : "Create New Parking Lot"}</DialogTitle>
                     <DialogDescription>
