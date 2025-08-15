@@ -15,7 +15,7 @@ import { formatCurrency, formatTime } from '@/lib/utils';
 import { STATES } from '@/lib/constants';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useQuery } from '@tanstack/react-query';
-import { PriceTier } from '@/types';
+import { ParkingLot, PriceTier } from '@/types';
 
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!);
@@ -52,13 +52,22 @@ export default function CheckoutPage() {
         }
     });
 
+    const { data: lot } = useQuery({
+        queryKey: ['lots'],
+        queryFn: async (): Promise<ParkingLot> => {
+            const res = await fetch(`/api/lots?id=${lotId}`)
+            if(!res.ok) throw new Error('Error fetching lot')
+            return res.json()
+        }
+    });
+
 
     const handleInputChange = (field: keyof CheckoutFormData, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
     };
 
     const createPaymentIntent = async () => {
-        if (!priceTier) return;
+        if (!priceTier || !lot) return;
         try {
             const response = await fetch('/api/create-payment-intent', {
                 method: 'POST',
@@ -67,10 +76,14 @@ export default function CheckoutPage() {
                 },
                 body: JSON.stringify({
                     schedule: {
-                        schedule_id: scheduleId,
-                        tier_id: priceTier.price_id,
+                        scheduleId: scheduleId,
+                        tierId: priceTier.price_id,
                     },
-                    lotId: lotId,
+                    lot: {
+                        lotId: lotId,
+                        location: lot.location,
+                        name: lot.name
+                    },
                     customerInfo: formData,
                 }),
             });

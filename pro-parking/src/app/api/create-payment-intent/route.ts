@@ -10,11 +10,11 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { schedule, lotId, customerInfo } = body;
+    const { schedule, lot, customerInfo } = body;
 
     const supabase = await createClient()
 
-    const { data, error } = await getPriceTierById(supabase, schedule.tier_id)
+    const { data, error } = await getPriceTierById(supabase, schedule.tierId)
 
     if(error || !data) throw error
 
@@ -27,9 +27,12 @@ export async function POST(req: NextRequest) {
         phone: customerInfo.phone,
         license_plate: customerInfo.licensePlate,
         license_state: customerInfo.licenseState,
-        lot_id: lotId,
-        schedule_id: schedule.schedule_id,
-        price_tier: schedule.tier_id,
+        lot_id: lot.lotId,
+        schedule_id: schedule.scheduleId,
+        price_tier: schedule.tierId,
+        location: lot.location,
+        name: lot.name,
+        maxHour: data.maxHour
       },
     });
 

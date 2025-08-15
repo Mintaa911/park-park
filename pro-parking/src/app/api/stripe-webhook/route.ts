@@ -53,12 +53,6 @@ export async function POST(request: Request) {
       return new Response(JSON.stringify({ error: 'DB insert failed' }), { status: 500 });
     }
 
-    const { data: price_tier, error: priceTierError} = await getPriceTierById(supabase,metadata.price_tier)
-
-    if(priceTierError) {
-      return new Response(JSON.stringify({ error: 'price tier fetch failed' }), { status: 500 });
-    }
-
     // Send confirmation email
     try {
       await sendEmail(
@@ -67,14 +61,14 @@ export async function POST(request: Request) {
         parkingCheckoutEmail({
           email: metadata.email,
           stripe_payment_id: paymentIntent.id,
-          lot_name: metadata.lot_name,
+          lot_name: metadata.name,
           location: metadata.location,
           start_time: new Date().toISOString(),
           end_time: new Date(
-            new Date().getTime() + (1000 * 60 * 60 * Number(price_tier?.maxHour))
+            new Date().getTime() + (1000 * 60 * 60 * Number(metadata?.maxHour))
           ).toISOString(),
           session_id: paymentIntent.id,
-          amount_paid: metadata.total_amount,
+          amount_paid: (paymentIntent.amount/100).toString(),
         })
       );
     } catch (emailErr) {

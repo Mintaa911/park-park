@@ -58,7 +58,7 @@ export const parkingCheckoutEmail = (checkoutInfo: emailBody) => {
 
       <!-- Footer -->
       <div style="text-align: center; margin-top: 20px; color: white; opacity: 0.8; font-size: 14px;">
-        <p style="margin: 0;">Thank you for choosing ParkPark!</p>
+        <p style="margin: 0;">Thank you for choosing Pro Parking!</p>
         <p style="margin: 8px 0 0 0;">If you have any questions, please contact our support team.</p>
       </div>
     </div>

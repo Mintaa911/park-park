@@ -139,7 +139,7 @@ export default function SuccessPage() {
 
                         {/* Footer Message */}
                         <div className="text-center space-y-2">
-                            <p className="text-gray-600">Thank you for choosing Park Park!</p>
+                            <p className="text-gray-600">Thank you for choosing Pro Parking!</p>
                             <p className="text-sm text-gray-500">A confirmation email has been sent to your registered email address.</p>
                         </div>
                     </div>
