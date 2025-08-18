@@ -6,8 +6,11 @@ import { Separator } from "@/components/ui/separator";
 import { Loader2, CheckCircle, Car } from "lucide-react";
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
+import { Button } from "@/components/ui/button";
+import { useRouter } from "next/navigation";
 
 export default function SuccessPage() {
+    const router = useRouter()
     const searchParams = useSearchParams();
     const paymentIntentId = searchParams.get('session_id');
 
@@ -16,7 +19,7 @@ export default function SuccessPage() {
         queryKey: ['orders'],
         queryFn: async () => {
             const res = await fetch(`/api/orders?paymentIntentId=${paymentIntentId}`)
-            if(!res.ok) throw new Error('Error fetching booking data')
+            if (!res.ok) throw new Error('Error fetching booking data')
             return res.json()
         }
     })
@@ -39,7 +42,7 @@ export default function SuccessPage() {
     return (
         <div className="min-h-screen p-4">
             <div className="md:w-[70%] md:mx-auto max-w-2xl">
-                {order && (
+                {order ? (
                     <div className="space-y-6">
                         {/* Header with Logo and Success Message */}
                         <div className="text-center space-y-4">
@@ -142,6 +145,18 @@ export default function SuccessPage() {
                             <p className="text-gray-600">Thank you for choosing Pro Parking!</p>
                             <p className="text-sm text-gray-500">A confirmation email has been sent to your registered email address.</p>
                         </div>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-4 justify-center">
+                        <p>Please refresh the page to load your booking information</p>
+                        <Button
+                            onClick={() => {
+                                router.refresh()
+                            }}
+                            className="w-fit"
+                        >
+                            Reload page
+                        </Button>
                     </div>
                 )}
             </div>

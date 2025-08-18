@@ -4,7 +4,6 @@ import { createClient } from '@supabase/supabase-js';
 import sendEmail from '@/lib/twillio/send-email';
 import { parkingCheckoutEmail } from '@/lib/twillio/email-format';
 import { NextResponse } from 'next/server';
-import { getPriceTierById } from '@/lib/supabase/queries/price-tier';
 
 
 // Initialize Stripe and Supabase
@@ -61,7 +60,7 @@ export async function POST(request: Request) {
         parkingCheckoutEmail({
           email: metadata.email,
           stripe_payment_id: paymentIntent.id,
-          lot_name: metadata.name,
+          lot_name: metadata.lot_name,
           location: metadata.location,
           start_time: new Date().toISOString(),
           end_time: new Date(

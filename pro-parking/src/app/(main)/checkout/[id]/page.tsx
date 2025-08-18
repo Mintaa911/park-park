@@ -25,6 +25,7 @@ interface CheckoutFormData {
     phone: string;
     licensePlate: string;
     licenseState: string;
+    zipCode: string;
 }
 
 export default function CheckoutPage() {
@@ -40,6 +41,7 @@ export default function CheckoutPage() {
         phone: '',
         licensePlate: '',
         licenseState: '',
+        zipCode: '',
     });
     const [clientSecret, setClientSecret] = useState<string>('');
 
@@ -47,7 +49,7 @@ export default function CheckoutPage() {
         queryKey: ['priceTier'],
         queryFn: async (): Promise<PriceTier> => {
             const res = await fetch(`/api/price-tiers?id=${priceTierId}`)
-            if(!res.ok) throw new Error('Error fetching price tier')
+            if (!res.ok) throw new Error('Error fetching price tier')
             return res.json()
         }
     });
@@ -56,7 +58,7 @@ export default function CheckoutPage() {
         queryKey: ['lots'],
         queryFn: async (): Promise<ParkingLot> => {
             const res = await fetch(`/api/lots?id=${lotId}`)
-            if(!res.ok) throw new Error('Error fetching lot')
+            if (!res.ok) throw new Error('Error fetching lot')
             return res.json()
         }
     });
@@ -189,19 +191,29 @@ export default function CheckoutPage() {
                                         />
                                     </div>
                                 </div>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="phone">Phone Number *</Label>
-                                    <Input
-                                        id="phone"
-                                        type="tel"
-                                        required
-                                        value={formData.phone}
-                                        onChange={(e) => handleInputChange('phone', e.target.value)}
-                                        placeholder="(555) 123-4567"
-                                    />
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="space-y-2">
+                                        <Label htmlFor="phone">Phone Number *</Label>
+                                        <Input
+                                            id="phone"
+                                            type="tel"
+                                            required
+                                            value={formData.phone}
+                                            onChange={(e) => handleInputChange('phone', e.target.value)}
+                                            placeholder="(555) 123-4567"
+                                        />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <Label htmlFor="zipCode">Zip/Postal Code *</Label>
+                                        <Input
+                                            id="zipCode"
+                                            required
+                                            value={formData.zipCode}
+                                            onChange={(e) => handleInputChange('zipCode', e.target.value)}
+                                            placeholder="Zip/Postal Code"
+                                        />
+                                    </div>
                                 </div>
-
                                 <div className="grid grid-cols-2 gap-4">
                                     <div className="space-y-2">
                                         <Label htmlFor="licensePlate">License Plate *</Label>
