@@ -27,7 +27,6 @@ export async function POST(req: NextRequest) {
         phone: customerInfo.phone,
         license_plate: customerInfo.licensePlate,
         license_state: customerInfo.licenseState,
-        zip_code: customerInfo.zipCode,
         lot_id: lot.lotId,
         schedule_id: schedule.scheduleId,
         price_tier: schedule.tierId,
