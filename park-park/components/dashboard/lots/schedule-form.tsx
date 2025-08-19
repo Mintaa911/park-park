@@ -4,7 +4,7 @@ import { Edit, Plus } from "lucide-react";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
-import { ParkingLot, ParkingSchedule as Schedule } from "@/types";
+import { ParkingLot, ParkingSchedule as Schedule, TicketEvent } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -14,11 +14,12 @@ import { useState, useEffect } from "react";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 
 const scheduleSchema = z.object({
-    name: z.string().min(1, "Schedule name is required").max(100, "Schedule name must be less than 100 characters"),
+    name: z.string().optional(),
     description: z.string().optional(),
     is_event: z.boolean(),
     days: z.array(z.number()),
@@ -30,7 +31,7 @@ const scheduleSchema = z.object({
 }).refine((data) => {
     if (data.event_end && data.event_start) {
         return data.event_end > data.event_start;
-    } 
+    }
     return true;
 }, {
     message: "Event start time must be before event end time",
@@ -38,7 +39,7 @@ const scheduleSchema = z.object({
 }).refine((data) => {
     if (data.start_time && data.end_time) {
         return data.start_time < data.end_time;
-    } 
+    }
     return true;
 }, {
     message: "Start time must be before end time",
@@ -52,8 +53,11 @@ interface ScheduleFormProps {
     schedule?: Schedule;
 }
 
+
+
 export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProps) {
     const [isCreateScheduleOpen, setIsCreateScheduleOpen] = useState(false);
+    const [selectedEvent, setSelectedEvent] = useState<TicketEvent | null>(null)
     const supabase = createClient();
     const queryClient = useQueryClient();
 
@@ -71,6 +75,15 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
         },
     });
 
+    const { data: events } = useQuery({
+        queryKey: ['Events', selectedLot?.lot_id],
+        queryFn: async () => {
+            const res = await fetch(`/api/events?lat=${selectedLot.latitude || ""}&lng=${selectedLot.longitude || ""}`)
+            const data = await res.json()
+            return data
+        },
+        enabled: !!selectedLot
+    })
 
     const { mutateAsync: updateSchedule } = useUpdateMutation(
         supabase.from('schedules'),
@@ -129,7 +142,7 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
             // Create schedule data matching the database structure
             const scheduleData = {
                 lot_id: selectedLot.lot_id,
-                name: data.name,
+                name: data.is_event? selectedEvent?.name : data.name,
                 description: data.description,
                 days: data.is_event ? [] : data.days,
                 event_start: data.is_event ? data.event_start?.toLocaleString('sv-SE') : null,
@@ -156,7 +169,6 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
     };
 
 
-
     return (
         <div>
             <Dialog open={isCreateScheduleOpen} onOpenChange={setIsCreateScheduleOpen}>
@@ -181,19 +193,39 @@ export default function ScheduleForm({ selectedLot, schedule }: ScheduleFormProp
                     </DialogHeader>
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={({ field }) => (
-                                    <FormItem>
-                                        <FormLabel>Schedule Name</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder="e.g., Morning Rush" {...field} />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
+                            {!form.watch("is_event") && (
+                                <FormField
+                                    control={form.control}
+                                    name="name"
+                                    render={({ field }) => (
+                                        <FormItem>
+                                            <FormLabel>Schedule Name</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder="e.g., Morning Rush" {...field} />
+                                            </FormControl>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
+                            )}
+                            {form.watch("is_event") && (
+                                <Select value={selectedEvent?.id} onValueChange={(value: string) => setSelectedEvent(events.find((event: TicketEvent) => event.id === value))}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Choose an event" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        {events && events.map((event: TicketEvent) => (
+                                            <SelectItem key={event.id} value={event.id}>
+                                                <div className="flex items-center gap-2">
+                                                    <span>{event.name}</span>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                            )
+
+                            }
                             <FormField
                                 control={form.control}
                                 name="description"

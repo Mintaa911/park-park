@@ -68,6 +68,8 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
             close: lotData?.close || "",
             amenities: lotData?.amenities.join(",") || "",
             is_24_hours: lotData?.is_24_hours || false,
+            latitude: lotData?.latitude || "",
+            longitude: lotData?.longitude || "",
         }
     });
 
@@ -89,6 +91,8 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                 close: selectedLot?.close || "",
                 amenities: selectedLot?.amenities.join(",") || "",
                 is_24_hours: selectedLot?.is_24_hours || false,
+                latitude: selectedLot?.latitude || "",
+                longitude: selectedLot?.longitude || "",
             })
         }
     }, [selectedLot, form]);
@@ -243,7 +247,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                                 </FormItem>
                             )}
                         />
-                        {/* <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-2 gap-4">
                         <FormField
                             control={form.control}
                             name="latitude"
@@ -270,7 +274,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                                 </FormItem>
                             )}
                         />
-                        </div> */}
+                        </div>
                         <FormField
                             control={form.control}
                             name="description"

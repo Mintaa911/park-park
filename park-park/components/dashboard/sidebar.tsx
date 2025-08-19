@@ -9,6 +9,7 @@ import {
   Home,
   Car,
   ChevronDown,
+  FileText,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import ProfileSettingsCard from './ProfileSettingsCard';
@@ -65,11 +66,11 @@ const sidebarItems: SidebarItem[] = [
   //   href: '/dashboard/analytics',
   //   icon: BarChart3,
   // },
-  // {
-  //   title: 'Reports',
-  //   href: '/dashboard/reports',
-  //   icon: FileText,
-  // },
+  {
+    title: 'Reports',
+    href: '/dashboard/reports',
+    icon: FileText,
+  },
 ];
 
 const bottomSidebarItems: SidebarItem[] = [

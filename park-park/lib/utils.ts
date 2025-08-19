@@ -1,6 +1,7 @@
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
-  
+import { format, subMonths } from "date-fns";
+
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
@@ -115,4 +116,18 @@ export function formatDate(date: Date | string): string {
   };
   
   return d.toLocaleDateString('en-US', options);
+}
+
+export function getLast12Months(): { label: string; value: string }[] {
+  const months: { label: string; value: string }[] = [];
+
+  for (let i = 0; i < 12; i++) {
+    const date = subMonths(new Date(), i);
+    months.push({
+      label: format(date, "MMMM yyyy"), // e.g., "July 2025"
+      value: format(date, "yyyy-MM"),   // e.g., "2025-07"
+    });
+  }
+
+  return months;
 }
