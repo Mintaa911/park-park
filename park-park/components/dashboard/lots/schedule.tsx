@@ -8,6 +8,7 @@ import { ParkingLot, ParkingSchedule } from "@/types";
 import {
   useDeleteMutation,
   useQuery as useSupabaseQuery,
+  useUpdateMutation,
 } from "@supabase-cache-helpers/postgrest-react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getLotSchedules } from "@/lib/supabase/queries/schedule";
@@ -88,23 +89,27 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
     }
   );
 
-  const { mutateAsync: deleteSchedule } = useDeleteMutation(
+  const { mutateAsync: updateSchedule } = useUpdateMutation(
     supabase.from("schedules"),
     ["schedule_id"],
     "schedule_id",
     {
       onSuccess: () => {
-        toast.success("Schedule deleted successfully");
+        toast.success("Schedule updated successfully");
         queryClient.invalidateQueries({
           queryKey: ["schedules", selectedLot.lot_id],
         });
       },
       onError: (error) => {
-        console.error("Error deleting schedule", error);
-        toast.error("Error deleting schedule");
+        console.error("Error updating schedule", error);
+        toast.error("Error updating schedule");
       },
     }
   );
+
+  const deleteSchedule = async (schedule_id: string) => {
+    await updateSchedule({ schedule_id, deleted_at: new Date().toISOString() })
+  }
 
   const handleViewTier = (schedule: ParkingSchedule) => {
     setSelectedSchedule(schedule);
@@ -200,8 +205,8 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() =>
-                          deleteSchedule({ schedule_id: schedule.schedule_id })
+                        onClick={async () =>
+                          await deleteSchedule(schedule.schedule_id)
                         }
                       >
                         <Trash2 className="w-4 h-4" />

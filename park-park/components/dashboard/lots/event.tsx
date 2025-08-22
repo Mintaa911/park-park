@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { getEventSchedules } from "@/lib/supabase/queries/schedule";
 import { createClient } from "@/lib/supabase/client";
-import { useDeleteMutation } from "@supabase-cache-helpers/postgrest-react-query";
+import { useDeleteMutation, useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { toast } from "sonner";
 import { getPriceTiers } from "@/lib/supabase/queries/price-tier";
 import UpcomingEventCard from "@/components/up-coming-event-card";
@@ -21,8 +21,7 @@ interface AvailableEventsProps {
 
 export default function AvailableEvents({ selectedLot }: AvailableEventsProps) {
   const [view, setView] = useState<"upcoming" | "priced">("upcoming");
-  const [selectedSchedule, setSelectedSchedule] =
-    useState<ParkingSchedule | null>(null);
+  const [selectedSchedule, setSelectedSchedule] = useState<ParkingSchedule | null>(null);
   const supabase = createClient();
   const queryClient = useQueryClient();
   const lotId = selectedLot.lot_id;
@@ -49,23 +48,27 @@ export default function AvailableEvents({ selectedLot }: AvailableEventsProps) {
     enabled: !!selectedSchedule?.schedule_id,
   });
   //mutations
-  const { mutateAsync: deleteSchedule } = useDeleteMutation(
+  const { mutateAsync: updateSchedule } = useUpdateMutation(
     supabase.from("schedules"),
     ["schedule_id"],
     "schedule_id",
     {
       onSuccess: () => {
-        toast.success("Schedule deleted successfully");
+        toast.success("Schedule updated successfully");
         queryClient.invalidateQueries({
-          queryKey: ["pricedEvents", lotId],
-        });
-        queryClient.invalidateQueries({
-          queryKey: ["upcomingEvents", lotId],
+          queryKey: ["schedules", selectedLot.lot_id],
         });
       },
-      onError: () => toast.error("Error deleting schedule"),
+      onError: (error) => {
+        console.error("Error updating schedule", error);
+        toast.error("Error updating schedule");
+      },
     }
   );
+
+  const deleteSchedule = async (schedule_id: string) => {
+    await updateSchedule({ schedule_id, deleted_at: new Date().toISOString() })
+  }
 
   const { mutateAsync: deletePriceTier } = useDeleteMutation(
     supabase.from("price_tiers"),

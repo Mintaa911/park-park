@@ -12,9 +12,9 @@ interface Props {
   selectedSchedule: ParkingSchedule | null;
   onSelect: () => void;
 
-  onDelete: (args: {
-    schedule_id: string;
-  }) => Promise<{ schedule_id: string } | null>;
+  onDelete: (
+    schedule_id: string
+  ) => Promise<void>;
 }
 export default function PricedEventCard({
   event,
@@ -44,7 +44,7 @@ export default function PricedEventCard({
             <Button
               variant="outline"
               size="sm"
-              onClick={() => onDelete({ schedule_id: event.schedule_id })}
+              onClick={() => onDelete(event.schedule_id)}
             >
               <Trash2 className="w-4 h-4" />
             </Button>

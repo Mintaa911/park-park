@@ -3,14 +3,15 @@ import { TypedSupabaseClient } from "@/types";
 
 
 export function getLotSchedules(client: TypedSupabaseClient, lot_id: string) {
-    return client.from('schedules').select('*').eq('lot_id', lot_id)
+    return client.from('schedules').select('*').eq('lot_id', lot_id).is('deleted_at', null);
 }
 export async  function  getEventSchedules(client: TypedSupabaseClient, lot_id: string) {
     const { data, error } = await client
     .from("schedules")
     .select("*")
     .eq("lot_id", lot_id)
-    .eq("is_event", true);
+    .eq("is_event", true)
+    .is('deleted_at', null);
 
 
   if (error) throw error;
@@ -19,7 +20,7 @@ export async  function  getEventSchedules(client: TypedSupabaseClient, lot_id: s
 }
 
 export function getLotSchedulesCount(client: TypedSupabaseClient, lot_id?: string) {
-    let query = client.from('schedules').select('*', { count: 'exact', head: true })
+    let query = client.from('schedules').select('*', { count: 'exact', head: true }).is('deleted_at', null)
     if (lot_id) {
         query = query.eq('lot_id', lot_id)
     }
@@ -27,11 +28,11 @@ export function getLotSchedulesCount(client: TypedSupabaseClient, lot_id?: strin
 }
 
 export function getScheduleByScheduleId(client: TypedSupabaseClient, schedule_id: string) {
-    return client.from('schedules').select('*').eq('schedule_id', schedule_id).maybeSingle();
+    return client.from('schedules').select('*').eq('schedule_id', schedule_id).is('deleted_at', null).maybeSingle();
 }
 
 export async function getScheduleBySlug(client: TypedSupabaseClient, scheduleSlug: string) {
-    return client.from('schedules').select('*').ilike('slug', `%${scheduleSlug}%`).maybeSingle();
+    return client.from('schedules').select('*').ilike('slug', `%${scheduleSlug}%`).is('deleted_at', null).maybeSingle();
 }
 
 export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date, lot_id: string) {
@@ -45,7 +46,7 @@ export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date,
         .eq('is_event', true)
         .lte('event_start', date.toLocaleString('sv-SE'))
         .gte('event_end', date.toLocaleString('sv-SE'))
-
+        .is('deleted_at', null)
 
         if (eventScheduleError) throw eventScheduleError;
         if(eventSchedule.length > 0) return eventSchedule
@@ -64,6 +65,7 @@ export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date,
         .contains('days', [day])
         .lte('start_time', `${hour}:${minute}`)
         .gte('end_time', `${hour}:${minute}`)
+        .is('deleted_at', null)
 
 
         if (regularScheduleError) throw regularScheduleError;

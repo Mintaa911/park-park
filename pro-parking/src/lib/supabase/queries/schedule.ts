@@ -12,6 +12,7 @@ export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date,
         .eq('is_event', true)
         .lte('event_start', date.toLocaleString('sv-SE'))
         .gte('event_end', date.toLocaleString('sv-SE'))
+        .is('deleted_at', null)
 
 
         if (eventScheduleError) throw eventScheduleError;
@@ -31,6 +32,7 @@ export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date,
         .contains('days', [day])
         .lte('start_time', `${hour}:${minute}`)
         .gte('end_time', `${hour}:${minute}`)
+        .is('deleted_at', null)
 
 
         if (regularScheduleError) throw regularScheduleError;

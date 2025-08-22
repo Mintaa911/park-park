@@ -20,7 +20,6 @@ const lotId = searchParams.get("lotId");
   //  Get events from Ticketmaster
   const events: { id: string }[] = await fetchEventsByVenues(venueIds);
 
-
   //  Get priced events for the lot
   const { data: priced, error: epError } = await supabase
     .from("schedules")
