@@ -5,6 +5,18 @@ import { TypedSupabaseClient } from "@/types";
 export function getLotSchedules(client: TypedSupabaseClient, lot_id: string) {
     return client.from('schedules').select('*').eq('lot_id', lot_id)
 }
+export async  function  getEventSchedules(client: TypedSupabaseClient, lot_id: string) {
+    const { data, error } = await client
+    .from("schedules")
+    .select("*")
+    .eq("lot_id", lot_id)
+    .eq("is_event", true);
+
+
+  if (error) throw error;
+  return data; 
+
+}
 
 export function getLotSchedulesCount(client: TypedSupabaseClient, lot_id?: string) {
     let query = client.from('schedules').select('*', { count: 'exact', head: true })

@@ -1,11 +1,17 @@
-'use client';
+"use client";
 
-import React, { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useEffect, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   MapPin,
   Car,
@@ -15,35 +21,35 @@ import {
   AlertCircle,
   Activity,
   BarChart3,
-} from 'lucide-react';
-import { useAuth } from '@/hooks/useAuth';
-import { LotStatus, ParkingLot, UserRole } from '@/types';
-import { useQuery } from '@tanstack/react-query';
-import { getLotsBySupervisor } from '@/lib/supabase/queries/lot';
-import { createClient } from '@/lib/supabase/client';
-import Overview from '@/components/dashboard/lots/overview';
-import Schedule from '@/components/dashboard/lots/schedule';
-import Booking from '@/components/dashboard/lots/booking';
-import Accounting from '@/components/dashboard/lots/accounting';
+  CalendarDays,
+} from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import { LotStatus, ParkingLot, UserRole } from "@/types";
+import { useQuery } from "@tanstack/react-query";
+import { getLotsBySupervisor } from "@/lib/supabase/queries/lot";
+import { createClient } from "@/lib/supabase/client";
+import Overview from "@/components/dashboard/lots/overview";
+import Schedule from "@/components/dashboard/lots/schedule";
+import Booking from "@/components/dashboard/lots/booking";
+import Accounting from "@/components/dashboard/lots/accounting";
 // import Employee from '@/components/dashboard/lots/employee';
-import LotForm from '@/components/dashboard/lots/create-lot-form';
-
+import LotForm from "@/components/dashboard/lots/create-lot-form";
+import AvailableEvents from "@/components/dashboard/lots/event";
 
 export default function ParkingLotsPage() {
   const [lots, setLots] = useState<ParkingLot[]>([]);
   const [selectedLot, setSelectedLot] = useState<ParkingLot | null>(null);
-  const [activeTab, setActiveTab] = useState('overview');
-
+  const [activeTab, setActiveTab] = useState("overview");
 
   const { user, userLoading } = useAuth();
 
   const supabase = createClient();
 
   const query = useQuery({
-    queryKey: ['lots', user?.id],
-    queryFn: () => getLotsBySupervisor(supabase, user?.id ?? ''),
-    enabled: !!user?.id
-  })
+    queryKey: ["lots", user?.id],
+    queryFn: () => getLotsBySupervisor(supabase, user?.id ?? ""),
+    enabled: !!user?.id,
+  });
 
   useEffect(() => {
     if (query.data && query.data.length > 0) {
@@ -52,21 +58,20 @@ export default function ParkingLotsPage() {
     if (query.data && query.data.length > 0 && !selectedLot) {
       setSelectedLot(query.data[0]);
     } else if (selectedLot) {
-      const lot = query.data?.find(lot => lot.lot_id === selectedLot?.lot_id);
+      const lot = query.data?.find((lot) => lot.lot_id === selectedLot?.lot_id);
       if (lot) {
         setSelectedLot(lot);
       }
     }
-
   }, [query, selectedLot]);
 
   const getStatusColor = (status: LotStatus) => {
     switch (status) {
       case LotStatus.OPEN:
-        return 'bg-green-100 text-green-800 border-green-200';
+        return "bg-green-100 text-green-800 border-green-200";
       case LotStatus.CLOSED:
       default:
-        return 'bg-red-100 text-red-800 border-red-200';
+        return "bg-red-100 text-red-800 border-red-200";
     }
   };
 
@@ -85,8 +90,12 @@ export default function ParkingLotsPage() {
     <div className="min-h-screen p-6">
       <div className="space-y-4">
         <div>
-          <h1 className="text-xl md:text-4xl font-bold text-gray-900 mb-2">Parking Lots Management</h1>
-          <p className="text-gray-600">Comprehensive management of your parking facilities</p>
+          <h1 className="text-xl md:text-4xl font-bold text-gray-900 mb-2">
+            Parking Lots Management
+          </h1>
+          <p className="text-gray-600">
+            Comprehensive management of your parking facilities
+          </p>
         </div>
 
         <Card className="shadow-lg border-0">
@@ -94,7 +103,14 @@ export default function ParkingLotsPage() {
             <div className="flex flex-col md:flex-row md:justify-between sm:flex-row md:items-center gap-2">
               <div className="flex-1">
                 <Label htmlFor="lot-select">Choose Parking Lot</Label>
-                <Select value={selectedLot?.lot_id} onValueChange={(value) => setSelectedLot(lots.find(lot => lot.lot_id === value) ?? null)}>
+                <Select
+                  value={selectedLot?.lot_id}
+                  onValueChange={(value) =>
+                    setSelectedLot(
+                      lots.find((lot) => lot.lot_id === value) ?? null
+                    )
+                  }
+                >
                   <SelectTrigger className="">
                     <SelectValue placeholder="Choose a parking lot to view details" />
                   </SelectTrigger>
@@ -104,7 +120,12 @@ export default function ParkingLotsPage() {
                         <div className="flex items-center gap-2">
                           {getStatusIcon(lot.status as LotStatus)}
                           <span>{lot.name}</span>
-                          <Badge variant="outline" className={`ml-2 ${getStatusColor(lot.status as LotStatus)}`}>
+                          <Badge
+                            variant="outline"
+                            className={`ml-2 ${getStatusColor(
+                              lot.status as LotStatus
+                            )}`}
+                          >
                             {lot.status}
                           </Badge>
                         </div>
@@ -125,13 +146,19 @@ export default function ParkingLotsPage() {
             <CardHeader className="rounded-t-lg">
               <div className="flex justify-between items-start">
                 <div>
-                  <CardTitle className="text-2xl mb-2">{selectedLot.name}</CardTitle>
+                  <CardTitle className="text-2xl mb-2">
+                    {selectedLot.name}
+                  </CardTitle>
                   <p className=" flex items-center gap-2">
                     <MapPin className="w-4 h-4" />
                     {selectedLot.location}
                   </p>
                 </div>
-                <Badge className={`${getStatusColor(selectedLot.status as LotStatus)} border`}>
+                <Badge
+                  className={`${getStatusColor(
+                    selectedLot.status as LotStatus
+                  )} border`}
+                >
                   {getStatusIcon(selectedLot.status as LotStatus)}
                   <span className="ml-1 capitalize">{selectedLot.status}</span>
                 </Badge>
@@ -139,28 +166,47 @@ export default function ParkingLotsPage() {
             </CardHeader>
             <CardContent className="p-0">
               {user && !userLoading && (
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-5 bg-gray-50 rounded-none flex justify-between">
-                    <TabsTrigger value="overview" className="flex items-center gap-2">
+                <Tabs
+                  value={activeTab}
+                  onValueChange={setActiveTab}
+                  className="w-full"
+                >
+                  <TabsList className="grid w-full grid-cols-5 bg-gray-50 rounded-none  ">
+                    <TabsTrigger
+                      value="overview"
+                      className="flex items-center gap-2"
+                    >
                       <Activity className="w-4 h-4" />
                       <span className="hidden md:block">Overview</span>
                     </TabsTrigger>
-                    <TabsTrigger value="schedules" className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="schedules"
+                      className="flex items-center gap-2"
+                    >
                       <Calendar className="w-4 h-4" />
                       <span className="hidden md:block">Schedules</span>
                     </TabsTrigger>
-                    <TabsTrigger value="bookings" className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="bookings"
+                      className="flex items-center gap-2"
+                    >
                       <Car className="w-4 h-4" />
                       <span className="hidden md:block">Bookings</span>
                     </TabsTrigger>
-                    <TabsTrigger value="accounting" className="flex items-center gap-2">
+                    <TabsTrigger
+                      value="accounting"
+                      className="flex items-center gap-2"
+                    >
                       <BarChart3 className="w-4 h-4" />
                       <span className="hidden md:block">Accounting</span>
                     </TabsTrigger>
-                    {/* <TabsTrigger value="managers" className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
-                      <span className="hidden md:block">Managers</span>
-                    </TabsTrigger> */}
+                    <TabsTrigger
+                      value="event"
+                      className="flex items-center gap-2"
+                    >
+                      <CalendarDays className="w-4 h-4" />
+                      <span className="hidden md:block">Event</span>
+                    </TabsTrigger>
                   </TabsList>
 
                   <TabsContent value="overview" className="p-6 space-y-6">
@@ -179,9 +225,9 @@ export default function ParkingLotsPage() {
                     <Accounting />
                   </TabsContent>
 
-                  {/* <TabsContent value="managers" className="p-6">
-                    <Employee />
-                  </TabsContent> */}
+                  <TabsContent value="event" className="p-6">
+                    <AvailableEvents selectedLot={selectedLot} />
+                  </TabsContent>
                 </Tabs>
               )}
             </CardContent>

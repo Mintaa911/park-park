@@ -90,3 +90,12 @@ export type  TicketEvent = {
         start: any
     }
 }
+
+export type Event= {
+  id: string;
+  name: string;
+  start_time: string;
+  venue: string;
+}
+
+
