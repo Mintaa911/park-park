@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import PriceTierForm from "./price-tier-form";
 import { toast } from "sonner";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface ScheduleProps {
   selectedLot: ParkingLot;
@@ -147,8 +148,8 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                   {filterType === "all"
                     ? "All Schedules"
                     : filterType === "regular"
-                    ? "Regular Schedules"
-                    : "Event Schedules"}
+                      ? "Regular Schedules"
+                      : "Event Schedules"}
                   <ChevronDown className="w-3 h-3 ml-1" />
                 </Button>
               </DropdownMenuTrigger>
@@ -174,102 +175,102 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
 
       <div className="grid grid-cols-2 gap-4">
         {!isLoadingSchedules &&
-        filteredSchedules &&
-        filteredSchedules.length > 0 ? (
-          <div className="grid gap-4">
-            {filteredSchedules.map((schedule) => (
-              <Card
-                key={schedule.schedule_id}
-                onClick={() => handleViewTier(schedule)}
-                className={`shadow-none border-b border-gray-200 transition-all duration-200 h-fit ${
-                  selectedSchedule?.schedule_id === schedule.schedule_id
+          filteredSchedules &&
+          filteredSchedules.length > 0 ? (
+          <ScrollArea className="h-96">
+            <div className="grid gap-4">
+              {filteredSchedules.map((schedule) => (
+                <Card
+                  key={schedule.schedule_id}
+                  onClick={() => handleViewTier(schedule)}
+                  className={`shadow-none border-b border-gray-200 transition-all duration-200 h-fit ${selectedSchedule?.schedule_id === schedule.schedule_id
                     ? "ring-2 ring-blue-500 bg-blue-50 border-blue-200"
                     : "hover:bg-gray-50"
-                }`}
-              >
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h4 className={`font-semibold text-lg`}>
-                        {schedule.name}
-                      </h4>
-                      <p className={`flex items-center gap-1`}>
-                        {schedule.description}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <ScheduleForm
-                        selectedLot={selectedLot}
-                        schedule={schedule}
-                      />
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={async () =>
-                          await deleteSchedule(schedule.schedule_id)
-                        }
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                  {!schedule.is_event && (
-                    <div className="flex gap-2 py-2">
-                      <span>Working Days</span>
-                      {schedule.days.map((day: number) => {
-                        return (
-                          <Badge
-                            key={day}
-                            variant="outline"
-                            className="bg-blue-500 text-white"
-                          >
-                            {getWeekDay(day)}
-                          </Badge>
-                        );
-                      })}
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4 justify-between">
-                    <div className="flex flex-1 gap-12">
+                    }`}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-3">
                       <div>
-                        <p>{schedule.is_event ? "Event Start" : "Open Time"}</p>
-                        <p>
-                          {schedule.is_event
-                            ? formatTime(schedule.event_start)
-                            : schedule.start_time}
+                        <h4 className={`font-semibold text-lg`}>
+                          {schedule.name}
+                        </h4>
+                        <p className={`flex items-center gap-1`}>
+                          {schedule.description}
                         </p>
                       </div>
-                      <div>
-                        <p>{schedule.is_event ? "Event End" : "Close Time"}</p>
-                        <p>
-                          {schedule.is_event
-                            ? formatTime(schedule.event_end)
-                            : schedule.end_time}
-                        </p>
+                      <div className="flex gap-2">
+                        <ScheduleForm
+                          selectedLot={selectedLot}
+                          schedule={schedule}
+                        />
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () =>
+                            await deleteSchedule(schedule.schedule_id)
+                          }
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <Badge
-                        variant="outline"
-                        className={`${
-                          schedule.is_event
+                    {!schedule.is_event && (
+                      <div className="flex gap-2 py-2">
+                        <span>Working Days</span>
+                        {schedule.days.map((day: number) => {
+                          return (
+                            <Badge
+                              key={day}
+                              variant="outline"
+                              className="bg-blue-500 text-white"
+                            >
+                              {getWeekDay(day)}
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    )}
+                    <div className="flex items-center gap-4 justify-between">
+                      <div className="flex flex-1 gap-12">
+                        <div>
+                          <p>{schedule.is_event ? "Event Start" : "Open Time"}</p>
+                          <p>
+                            {schedule.is_event
+                              ? formatTime(schedule.event_start)
+                              : schedule.start_time}
+                          </p>
+                        </div>
+                        <div>
+                          <p>{schedule.is_event ? "Event End" : "Close Time"}</p>
+                          <p>
+                            {schedule.is_event
+                              ? formatTime(schedule.event_end)
+                              : schedule.end_time}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Badge
+                          variant="outline"
+                          className={`${schedule.is_event
                             ? "bg-blue-500 text-white"
                             : "bg-gray-500 text-white"
-                        }`}
-                      >
-                        {!schedule.is_event
-                          ? "Regular"
-                          : new Date(schedule.event_end ?? "").getTime() <
-                            new Date().getTime()
-                          ? "Event Passed"
-                          : "Event"}
-                      </Badge>
+                            }`}
+                        >
+                          {!schedule.is_event
+                            ? "Regular"
+                            : new Date(schedule.event_end ?? "").getTime() <
+                              new Date().getTime()
+                              ? "Event Passed"
+                              : "Event"}
+                        </Badge>
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          </ScrollArea>
         ) : (
           <div className="text-center py-8 text-gray-500">
             <Calendar className="w-12 h-12 mx-auto mb-4 text-gray-300" />
@@ -288,61 +289,63 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
         <div className="flex flex-col gap-4">
           <h3 className="text-xl font-semibold">Price Tiers</h3>
           {query.data && query.data.length > 0 ? (
-            <div>
-              <div className="flex flex-col gap-4">
-                {query.data.map((tier) => (
-                  <div
-                    key={tier.price_id}
-                    className="space-y-2 border border-gray-200 p-4 rounded-lg"
-                  >
-                    <div className="flex justify-between w-full">
-                      <p className="font-semibold flex items-center gap-1">
-                        {tier.maxHour} hours
-                      </p>
-                      <h4 className="font-semibold text-lg">
-                        {formatCurrency(tier.price)}
-                      </h4>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <div className="flex gap-2 items-center">
-                        <p>
-                          {selectedSchedule?.is_event &&
-                            formatTime(selectedSchedule.event_start)}
-                          {!selectedSchedule?.is_event &&
-                            selectedSchedule?.start_time &&
-                            formatTime(selectedSchedule?.start_time)}
+            <ScrollArea className="h-96">
+              <div>
+                <div className="flex flex-col gap-4">
+                  {query.data.map((tier) => (
+                    <div
+                      key={tier.price_id}
+                      className="space-y-2 border border-gray-200 p-4 rounded-lg"
+                    >
+                      <div className="flex justify-between w-full">
+                        <p className="font-semibold flex items-center gap-1">
+                          {tier.maxHour} hours
                         </p>
-                        <ArrowRight className="w-4 h-4" />
-                        <p>
-                          {selectedSchedule?.is_event &&
-                            formatTime(selectedSchedule.event_end)}
-                          {!selectedSchedule?.is_event &&
-                            selectedSchedule?.end_time &&
-                            formatTime(selectedSchedule?.end_time)}
-                        </p>
+                        <h4 className="font-semibold text-lg">
+                          {formatCurrency(tier.price)}
+                        </h4>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <PriceTierForm
-                          sechuledId={selectedSchedule?.schedule_id ?? ""}
-                          priceTier={tier}
-                        />
-                        <Trash2
-                          className="w-4 h-4"
-                          onClick={() =>
-                            deletePriceTier({ price_id: tier.price_id })
-                          }
-                        />
+                      <div className="flex justify-between items-center">
+                        <div className="flex gap-2 items-center">
+                          <p>
+                            {selectedSchedule?.is_event &&
+                              formatTime(selectedSchedule.event_start)}
+                            {!selectedSchedule?.is_event &&
+                              selectedSchedule?.start_time &&
+                              formatTime(selectedSchedule?.start_time)}
+                          </p>
+                          <ArrowRight className="w-4 h-4" />
+                          <p>
+                            {selectedSchedule?.is_event &&
+                              formatTime(selectedSchedule.event_end)}
+                            {!selectedSchedule?.is_event &&
+                              selectedSchedule?.end_time &&
+                              formatTime(selectedSchedule?.end_time)}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <PriceTierForm
+                            sechuledId={selectedSchedule?.schedule_id ?? ""}
+                            priceTier={tier}
+                          />
+                          <Trash2
+                            className="w-4 h-4"
+                            onClick={() =>
+                              deletePriceTier({ price_id: tier.price_id })
+                            }
+                          />
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
+                <div className="flex justify-center mt-8">
+                  {selectedSchedule?.schedule_id && (
+                    <PriceTierForm sechuledId={selectedSchedule.schedule_id} />
+                  )}
+                </div>
               </div>
-              <div className="flex justify-center mt-8">
-                {selectedSchedule?.schedule_id && (
-                  <PriceTierForm sechuledId={selectedSchedule.schedule_id} />
-                )}
-              </div>
-            </div>
+            </ScrollArea>
           ) : selectedSchedule?.schedule_id ? (
             <div className="text-center py-8 text-gray-500">
               <p>No price tiers available for this schedule.</p>

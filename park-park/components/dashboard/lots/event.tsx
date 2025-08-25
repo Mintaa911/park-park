@@ -56,7 +56,7 @@ export default function AvailableEvents({ selectedLot }: AvailableEventsProps) {
       onSuccess: () => {
         toast.success("Schedule updated successfully");
         queryClient.invalidateQueries({
-          queryKey: ["schedules", selectedLot.lot_id],
+          queryKey: ["pricedEvents", selectedLot.lot_id],
         });
       },
       onError: (error) => {
