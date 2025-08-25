@@ -168,10 +168,10 @@ export default function ScheduleForm({
         description: data.description,
         days: data.is_event ? [] : data.days,
         event_start: data.is_event
-          ? data.event_start?.toLocaleString("sv-SE")
+          ? data.event_start?.toISOString()
           : null,
         event_end: data.is_event
-          ? data.event_end?.toLocaleString("sv-SE")
+          ? data.event_end?.toISOString()
           : null,
         start_time: data.is_event ? null : data.start_time,
         end_time: data.is_event ? null : data.end_time,

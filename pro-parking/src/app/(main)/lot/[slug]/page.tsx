@@ -44,7 +44,7 @@ export default function ParkingLotPage() {
   useEffect(() => {
     let first
     if( schedules.data && schedules.data.length > 0) {
-      first = schedules.data[0].price_tiers?.[0].price_id
+      first = schedules.data[0].price_tiers?.[0]?.price_id
       setScheduleId(schedules.data[0].schedule_id)
     }
 
@@ -142,7 +142,7 @@ export default function ParkingLotPage() {
         {/* Schedules Section */}
         <div className="mb-6">
           <h2 className="text-2xl font-bold mb-4">Available Schedules</h2>
-          {schedules.data?.length === 0 ? (
+          {schedules.data?.length === 0 || (schedules.data && (!schedules.data[0].price_tiers.length)) ? (
             <Card>
               <CardContent className="py-8 text-center">
                 <p className="text-muted-foreground">No schedules available for this parking lot.</p>
