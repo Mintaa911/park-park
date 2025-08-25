@@ -38,7 +38,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <nav className="w-full flex justify-center h-16">
+            <nav className="w-full flex justify-center h-16 fixed top-0 bg-white">
               <div className="w-full max-w-7xl flex justify-between items-center p-3 px-5 text-sm">
                 <div className="flex gap-5 items-center font-semibold">
                   <Link href={"/"}>
@@ -58,7 +58,7 @@ export default function RootLayout({
                 </div>
               </div>
             </nav>
-            <main>
+            <main className="mt-24">
               {children}
             </main>
           </ThemeProvider>

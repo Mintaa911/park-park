@@ -85,7 +85,7 @@ export default function ParkingLotPage() {
       <div className="flex flex-col md:flex-row gap-4 md:items-start md:justify-between">
         <div className="flex-1">
           <h1 className="md:text-3xl font-bold mb-2">{lot.name}</h1>
-          <div className="flex items-center gap-4 text-sm opacity-90">
+          <div className="flex items-center gap-4 text-sm">
             <div className="flex items-center gap-1">
               <MapPin className="h-4 w-4" />
               <span>{lot.location}</span>
