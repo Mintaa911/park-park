@@ -2,11 +2,11 @@ import { TypedSupabaseClient } from "@/types";
 
 
 export async function getLotById(client: TypedSupabaseClient, lotId: string) {
-    return await client.from('lots').select('*').eq('lot_id', lotId).maybeSingle();
+    return await client.from('lots').select('*').eq('status', 'OPEN').eq('lot_id', lotId).maybeSingle();
 }
 
 export async function getLotBySlug(client: TypedSupabaseClient, lotSlug: string) {
-    return await client.from('lots').select('*').ilike('slug', `%${lotSlug}%`).maybeSingle();
+    return await client.from('lots').select('*').eq('status', 'OPEN').ilike('slug', `%${lotSlug}%`).maybeSingle();
 }
 
 export async function searchParkingLots(client: TypedSupabaseClient, searchQuery: string) {

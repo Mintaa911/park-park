@@ -32,13 +32,13 @@ export default function ParkingLotPage() {
   });
 
   const schedules = useQuery({
-    queryKey: ['schedules'],
+    queryKey: ['schedules', lotSlug],
     queryFn: async (): Promise<ParkingScheduleFull[]> => {
       const res = await fetch(`/api/schedules?data=${lotSlug}&lot_id=${lot!.lot_id}`)
       if (!res.ok) throw new Error('Error fetching schedules')
       return res.json()
     },
-    enabled: !!lot
+    enabled: !!lot?.lot_id
   })
 
   useEffect(() => {
