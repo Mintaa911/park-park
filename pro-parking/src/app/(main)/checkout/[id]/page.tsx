@@ -170,11 +170,10 @@ export default function CheckoutPage() {
     <div className="min-h-screen">
       <div className="">
         {/* Header */}
-        <div className="mb-8">
+        <div className="mb-4">
           <Button
             onClick={() => router.back()}
             variant="ghost"
-            className="mb-4"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Parking Lot

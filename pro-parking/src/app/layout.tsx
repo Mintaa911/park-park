@@ -39,26 +39,24 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <nav className="w-full flex justify-center h-16 sticky top-0 bg-white">
-              <div className="w-full max-w-7xl flex justify-between items-center p-3 px-5 text-sm">
-                <div className="flex gap-5 items-center font-semibold">
-                  <Link href={"/"}>
-                    <div className="flex items-center gap-1 cursor-pointer">
-                      <Image
-                        className="p-1"
-                        src="/logo3.png"
-                        alt="Logo"
-                        width={50}
-                        height={50}
-                      />
-                      <span className="text-xl font-bold tracking-tight text-gray-800">
-                        Pro Parking
-                      </span>{" "}
-                    </div>
-                  </Link>
-                </div>
+              <div className="w-full max-w-7xl  px-3 text-sm">
+                <Link href={"/"}>
+                  <div className="flex items-center gap-1 cursor-pointer">
+                    <Image
+                      className="p-1"
+                      src="/logo3.png"
+                      alt="Logo"
+                      width={50}
+                      height={50}
+                    />
+                    <span className="text-xl font-bold tracking-tight text-gray-800">
+                      Pro Parking
+                    </span>{" "}
+                  </div>
+                </Link>
               </div>
             </nav>
-            <main className="mt-24">
+            <main>
               {children}
             </main>
           </ThemeProvider>
