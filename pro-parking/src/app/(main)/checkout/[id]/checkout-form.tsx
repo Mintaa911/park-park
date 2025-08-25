@@ -82,61 +82,57 @@ export function CheckoutForm({ customerInfo, priceTier }: CheckoutFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Order Summary */}
-
-      {/* Payment Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Payment Information</CardTitle>
-          <CardDescription>
-            Enter your card details to complete the payment
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-4">
-            <PaymentElement
-              options={{
-                fields: {
-                  billingDetails: {
-                    email: "auto",
-                    address: {
-                      postalCode: "auto", // 🔑 force ZIP/postal
-                      country: "auto",
-                      city: "auto",
-                      line1: "auto",
-                      line2: "never",
-                      state: "auto",
-                    },
+    <Card>
+      <CardHeader>
+        <CardTitle>Payment Information</CardTitle>
+        <CardDescription>
+          Enter your card details to complete the payment
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="space-y-4">
+          <PaymentElement
+            options={{
+              fields: {
+                billingDetails: {
+                  email: "auto",
+                  address: {
+                    postalCode: "auto", // 🔑 force ZIP/postal
+                    country: "auto",
+                    city: "auto",
+                    line1: "auto",
+                    line2: "never",
+                    state: "auto",
                   },
                 },
-              }}
-            />
+              },
+            }}
+          />
+        </div>
+
+        {error && (
+          <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
+            {error}
           </div>
+        )}
 
-          {error && (
-            <div className="text-red-500 text-sm bg-red-50 p-3 rounded-md">
-              {error}
-            </div>
+        <Button
+          type="button"
+          onClick={handleSubmit}
+          disabled={!stripe || loading}
+          className="w-full"
+          size="lg"
+        >
+          {loading ? (
+            <>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              Processing Payment...
+            </>
+          ) : (
+            <>Pay {formatPrice(priceTier.price)}</>
           )}
-
-          <Button
-            type="submit"
-            disabled={!stripe || loading}
-            className="w-full"
-            size="lg"
-          >
-            {loading ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                Processing Payment...
-              </>
-            ) : (
-              <>Pay {formatPrice(priceTier.price)}</>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-    </form>
+        </Button>
+      </CardContent>
+    </Card>
   );
 }

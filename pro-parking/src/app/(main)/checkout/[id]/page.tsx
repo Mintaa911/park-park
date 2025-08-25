@@ -9,9 +9,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Form,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { ArrowLeft, CreditCard, ArrowRight } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
@@ -28,18 +35,30 @@ import {
 } from "@/components/ui/select";
 import { useQuery } from "@tanstack/react-query";
 import { ParkingLot, PriceTier } from "@/types";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!
 );
 
-interface CheckoutFormData {
-  email: string;
-  phone: string;
-  licensePlate: string;
-  licenseState: string;
-}
+const checkoutSchema = z.
+  object({
+    email: z.email("Invalid email address"),
+    phone: z
+      .string()
+      .min(10, "Phone number must be at least 10 digits")
+      .regex(/^[0-9]+$/, "Phone number must contain only digits"),
+    licensePlate: z
+      .string()
+      .min(2, "License plate must be at least 2 characters")
+      .max(10, "License plate must be at most 10 characters"),
+    licenseState: z.string().min(2, "Please select a state"),
+  })
+
+type CheckoutFormData = z.infer<typeof checkoutSchema>;
 
 export default function CheckoutPage() {
   const params = useParams();
@@ -49,12 +68,16 @@ export default function CheckoutPage() {
   const scheduleId = searchParams.get("scheduleId") as string;
   const priceTierId = searchParams.get("priceTierId") as string;
 
-  const [formData, setFormData] = useState<CheckoutFormData>({
-    email: "",
-    phone: "",
-    licensePlate: "",
-    licenseState: "",
+  const form = useForm<CheckoutFormData>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      email: "",
+      phone: "",
+      licensePlate: "",
+      licenseState: STATES[0].code,
+    },
   });
+
   const [clientSecret, setClientSecret] = useState<string>("");
 
   const {
@@ -79,10 +102,6 @@ export default function CheckoutPage() {
     },
   });
 
-  const handleInputChange = (field: keyof CheckoutFormData, value: string) => {
-    setFormData((prev) => ({ ...prev, [field]: value }));
-  };
-
   const createPaymentIntent = async () => {
     if (!priceTier || !lot) return;
     try {
@@ -101,7 +120,7 @@ export default function CheckoutPage() {
             location: lot.location,
             name: lot.name,
           },
-          customerInfo: formData,
+          customerInfo: form.getValues(),
         }),
       });
 
@@ -199,102 +218,111 @@ export default function CheckoutPage() {
                   Please provide your details to complete the booking
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="">
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      required
-                      value={formData.email}
-                      onChange={(e) =>
-                        handleInputChange("email", e.target.value)
-                      }
-                      placeholder="john@example.com"
+              <CardContent className="">
+                <Form {...form}>
+                  <form onSubmit={form.handleSubmit(createPaymentIntent)} className="space-y-4">
+                    {/* Email */}
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email *</FormLabel>
+                          <FormControl>
+                            <Input type="email" placeholder="john@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                </div>
-                <div className="">
-                  <div className="space-y-2">
-                    <Label htmlFor="phone">Phone Number *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      required
-                      value={formData.phone}
-                      onChange={(e) =>
-                        handleInputChange("phone", e.target.value)
-                      }
-                      placeholder="(555) 123-4567"
+
+                    {/* Phone */}
+                    <FormField
+                      control={form.control}
+                      name="phone"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Phone Number *</FormLabel>
+                          <FormControl>
+                            <Input type="tel" placeholder="(555) 123-4567" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
                     />
-                  </div>
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="licensePlate">License Plate *</Label>
-                    <Input
-                      id="licensePlate"
-                      required
-                      value={formData.licensePlate}
-                      onChange={(e) =>
-                        handleInputChange("licensePlate", e.target.value)
-                      }
-                      placeholder="ABC123"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="licenseState">License State *</Label>
-                    <Select
-                      required
-                      value={formData.licenseState}
-                      onValueChange={(value) =>
-                        handleInputChange("licenseState", value)
-                      }
-                      defaultValue={STATES[0].code}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a state" />
-                      </SelectTrigger>
-                      <SelectContent
-                        position="popper"
-                        side="bottom"
-                        align="start"
-                        className="max-h-[200px] overflow-y-auto"
+
+                    <div className="grid grid-cols-2 gap-4">
+                      {/* License Plate */}
+                      <FormField
+                        control={form.control}
+                        name="licensePlate"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>License Plate *</FormLabel>
+                            <FormControl>
+                              <Input placeholder="ABC123" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+
+                      {/* License State */}
+                      <FormField
+                        control={form.control}
+                        name="licenseState"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>License State *</FormLabel>
+                            <FormControl>
+                              <Select
+                                value={field.value}
+                                onValueChange={field.onChange}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue placeholder="Select a state" />
+                                </SelectTrigger>
+                                <SelectContent className="max-h-[200px] overflow-y-auto">
+                                  {STATES.map((state) => (
+                                    <SelectItem key={state.code} value={state.code}>
+                                      {state.name}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
+
+                    {/* Stripe Payment */}
+                    {clientSecret && priceTier ? (
+                      <Elements stripe={stripePromise} options={{ clientSecret }}>
+                        <CheckoutForm
+                          customerInfo={form.getValues()}
+                          clientSecret={clientSecret}
+                          priceTier={priceTier}
+                        />
+                      </Elements>
+                    ) : (
+                      <Button
+                        type="submit"
+                        disabled={
+                          !form.watch("email") ||
+                          !form.watch("phone") ||
+                          !form.watch("licensePlate") ||
+                          !form.watch("licenseState") ||
+                          !priceTier
+                        }
+                        className="w-full"
                       >
-                        {STATES.map((state) => (
-                          <SelectItem key={state.code} value={state.code}>
-                            {state.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-                {clientSecret && priceTier && (
-                  <Elements stripe={stripePromise} options={{ clientSecret }}>
-                    <CheckoutForm
-                      customerInfo={formData}
-                      clientSecret={clientSecret}
-                      priceTier={priceTier}
-                    />
-                  </Elements>
-                )}
-                {!clientSecret && (
-                  <Button
-                    onClick={createPaymentIntent}
-                    disabled={
-                      !formData.email ||
-                      !formData.phone ||
-                      !formData.licensePlate ||
-                      !formData.licenseState ||
-                      !priceTier
-                    }
-                    className="w-full"
-                  >
-                    Continue to Payment
-                  </Button>
-                )}
+                        Continue to Payment
+                      </Button>
+                    )}
+                  </form>
+                </Form>
               </CardContent>
             </Card>
           </div>
