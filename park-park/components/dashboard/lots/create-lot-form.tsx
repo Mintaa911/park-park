@@ -150,6 +150,8 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                 images: [],
                 qr_image: "",
                 slug: data.name.toLowerCase().replace(/ /g, '-'),
+                open: data.is_24_hours ? null : data.open,
+                close: data.is_24_hours ? null : data.close,
                 is_24_hours: data.is_24_hours ? true : false,
             };
 
@@ -162,7 +164,6 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                     employees: lotData.employees,
                     supervisors: lotData.supervisors,
                     images: lotData.images,
-                    is_24_hours: lotData.is_24_hours ? true : false,
                 });
             } else {
 
@@ -248,32 +249,32 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                             )}
                         />
                         <div className="grid grid-cols-2 gap-4">
-                        <FormField
-                            control={form.control}
-                            name="latitude"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Latitude</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="40.7128" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="longitude"
-                            render={({ field }) => (
-                                <FormItem>
-                                    <FormLabel>Longitude</FormLabel>
-                                    <FormControl>
-                                        <Input placeholder="-74.0060" {...field} />
-                                    </FormControl>
-                                    <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                            <FormField
+                                control={form.control}
+                                name="latitude"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Latitude</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="40.7128" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="longitude"
+                                render={({ field }) => (
+                                    <FormItem>
+                                        <FormLabel>Longitude</FormLabel>
+                                        <FormControl>
+                                            <Input placeholder="-74.0060" {...field} />
+                                        </FormControl>
+                                        <FormMessage />
+                                    </FormItem>
+                                )}
+                            />
                         </div>
                         <FormField
                             control={form.control}
