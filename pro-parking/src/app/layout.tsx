@@ -38,7 +38,7 @@ export default function RootLayout({
             enableSystem
             disableTransitionOnChange
           >
-            <nav className="w-full flex justify-center h-16 sticky top-0 bg-white">
+            <nav className="w-full flex justify-center h-16 sticky top-0 bg-white border-b z-50">
               <div className="w-full max-w-7xl  px-3 text-sm">
                 <Link href={"/"}>
                   <div className="flex items-center gap-1 cursor-pointer">
@@ -56,9 +56,7 @@ export default function RootLayout({
                 </Link>
               </div>
             </nav>
-            <main>
-              {children}
-            </main>
+            <main>{children}</main>
           </ThemeProvider>
           <Toaster />
         </body>

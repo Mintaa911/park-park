@@ -83,7 +83,7 @@ export function CheckoutForm({ customerInfo, priceTier }: CheckoutFormProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="z-1">
         <CardTitle>Payment Information</CardTitle>
         <CardDescription>
           Enter your card details to complete the payment
