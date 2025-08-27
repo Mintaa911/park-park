@@ -253,7 +253,7 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
 
       {/* Quick Stats*/}
       <div className="space-y-6">
-        <Card className="border-l-4 border-l-blue-500">
+        <Card className="border-l-4 border-l-primary">
           <CardHeader>
             <CardTitle className="text-lg">Quick Stats</CardTitle>
           </CardHeader>

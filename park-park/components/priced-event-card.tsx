@@ -72,7 +72,7 @@ export default function PricedEventCard({
               variant="outline"
               className={`${
                 event.is_event
-                  ? "bg-blue-500 text-white"
+                  ? "bg-primary text-white"
                   : "bg-gray-500 text-white"
               }`}
             >

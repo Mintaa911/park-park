@@ -104,12 +104,12 @@ export default function AvailableEvents({ selectedLot }: AvailableEventsProps) {
       <Card className="p-6 text-center">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">Nearby Events</h2>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center gap-2">
             <EventForm selectedLot={selectedLot} />
             <select
               value={view}
               onChange={(e) => setView(e.target.value as "upcoming" | "priced")}
-              className="border rounded-md p-1 text-sm"
+              className="border rounded-md py-2 text-sm"
             >
               <option value="upcoming">Upcoming Events</option>
               <option value="priced">Priced Events</option>
@@ -125,12 +125,12 @@ export default function AvailableEvents({ selectedLot }: AvailableEventsProps) {
     <Card className="p-4 space-y-4">
       <div className="flex justify-between items-center">
         <h2 className="text-lg font-semibold">Nearby Events</h2>
-        <div className="flex justify-between items-center">
+        <div className="flex justify-between items-center gap-2">
           <EventForm selectedLot={selectedLot} />
           <select
             value={view}
             onChange={(e) => setView(e.target.value as "upcoming" | "priced")}
-            className="border rounded-md p-1 text-sm"
+            className="border rounded-md py-2 text-sm"
           >
             <option value="upcoming">Upcoming Events</option>
             <option value="priced">Priced Events</option>

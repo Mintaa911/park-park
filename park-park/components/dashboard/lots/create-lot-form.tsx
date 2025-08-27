@@ -192,7 +192,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                         Edit Lot
                     </Button>
                 ) : (
-                    <Button className="bg-blue-600 hover:bg-blue-700 text-white shadow-lg">
+                    <Button className="hover:bg-primary text-white shadow-lg">
                         <Plus className="w-4 h-4" />
                         Add New Lot
                     </Button>

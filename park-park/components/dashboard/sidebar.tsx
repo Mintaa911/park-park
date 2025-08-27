@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Badge } from '@/components/ui/badge';
@@ -112,11 +113,17 @@ export default function SidebarContent() {
     <div className="flex flex-col h-full w-72">
       {/* Logo and Brand */}
       <div className="flex items-center gap-3 px-6 py-6 border-b border-gray-200">
-        <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
-          <Car className="w-6 h-6 text-white" />
+        <div className="w-10 h-10  rounded-xl flex items-center justify-center">
+          <Image
+            className="p-1"
+            src="/logo3.png"
+            alt="Logo"
+            width={50}
+            height={50}
+          />
         </div>
         <div>
-          <h1 className="text-xl font-bold text-gray-900">ParkEase</h1>
+          <h1 className="text-xl font-bold text-gray-900">Pro Park</h1>
           <p className="text-sm text-gray-500">Admin Dashboard</p>
         </div>
       </div>

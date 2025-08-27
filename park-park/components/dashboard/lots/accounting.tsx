@@ -168,7 +168,7 @@ export default function Accounting() {
               <p className="text-sm text-gray-500 mb-2">Current Occupancy</p>
               <div className="w-full bg-gray-200 rounded-full h-3">
                 <div
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 h-3 rounded-full"
+                  className="bg-primary h-3 rounded-full"
                   style={{ width: `${accountingInfo.occupancy_rate}%` }}
                 ></div>
               </div>

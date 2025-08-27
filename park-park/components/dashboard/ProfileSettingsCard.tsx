@@ -50,7 +50,7 @@ export default function ProfileSettingsCard({ user, signOut, children }: Profile
                         <div className="flex-1" />
                         <button
                             onClick={signOut}
-                            className="flex  items-center gap-6 px-6 py-2 rounded-md text-sm bg-gradient-to-br from-blue-600 to-blue-700 mt-2 font-medium text-white"
+                            className="flex  items-center gap-6 px-6 py-2 rounded-md text-sm bg-primary mt-2 font-medium text-white"
                             type="button"
                         >
                             <span className="text-white">Log out</span>

@@ -70,13 +70,13 @@ export function Hero() {
         <div className="flex justify-center gap-4 mt-8">
           <a
             href="#"
-            className="inline-block  rounded-lg px-6 py-3 bg-gray-800 text-white"
+            className="inline-block  rounded-lg px-6 py-3 bg-primary text-white"
           >
             App Store
           </a>
           <a
             href="#"
-            className="inline-block  rounded-lg px-6 py-3 bg-gray-800 text-white"
+            className="inline-block  rounded-lg px-6 py-3 bg-primary text-white"
           >
             Google Play
           </a>

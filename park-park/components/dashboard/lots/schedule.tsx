@@ -222,7 +222,7 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                             <Badge
                               key={day}
                               variant="outline"
-                              className="bg-blue-500 text-white"
+                              className="bg-primary text-white"
                             >
                               {getWeekDay(day)}
                             </Badge>
@@ -253,7 +253,7 @@ export default function Schedule({ selectedLot }: ScheduleProps) {
                         <Badge
                           variant="outline"
                           className={`${schedule.is_event
-                            ? "bg-blue-500 text-white"
+                            ? "bg-primary text-white"
                             : "bg-gray-500 text-white"
                             }`}
                         >
