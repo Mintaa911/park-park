@@ -1,57 +1,56 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+'use client'
+
+import { Card, CardContent } from "@/components/ui/card";
 import { formatCurrency } from "@/lib/utils";
 import {
   TrendingUp,
   BarChart3,
-  Car,
-  PieChart,
-  CreditCard,
-  Clock,
+  Car
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import { useState } from "react";
-import { Badge } from "@/components/ui/badge";
+import { useQuery } from "@tanstack/react-query";
+import { getLotMonthlyRevenue, getLotOrdersCount, getLotOrdersCountByType, getLotTotalRevenue } from "@/lib/supabase/queries/order";
+import { createClient } from "@/lib/supabase/client";
+import { LotBookingTypeChart } from "@/components/lot-booking-type-chart";
+import { LotMonthlyBookingChart } from "@/components/lot-montly-booking-chart";
 
-interface AccountingInfo {
-  total_revenue: number;
-  monthly_revenue: number;
-  weekly_revenue: number;
-  daily_revenue: number;
-  total_bookings: number;
-  pending_payments: number;
-  refunds_issued: number;
-  average_booking_value: number;
-  occupancy_rate: number;
-  peak_hours: string[];
-}
+export default function Accounting({ lot_id }: { lot_id: string }) {
+  const supabase = createClient()
 
-export default function Accounting() {
-  // Sample accounting data
-  const [accountingInfo] = useState<AccountingInfo>({
-    total_revenue: 190.0,
-    monthly_revenue: 140.0,
-    weekly_revenue: 100.0,
-    daily_revenue: 55.0,
-    total_bookings: 15,
-    pending_payments: 0,
-    refunds_issued: 0,
-    average_booking_value: 16.75,
-    occupancy_rate: 78.5,
-    peak_hours: ["07:00-10:00", "17:00-20:00"],
-  });
+  const { data: totalRevenue } = useQuery({
+    queryKey: ['totalRevenue', lot_id],
+    queryFn: () => getLotTotalRevenue(supabase, lot_id),
+    enabled: !!lot_id
+  })
+  const { data: monthlyRevenue } = useQuery({
+    queryKey: ['monthlyRevenue', lot_id],
+    queryFn: () => getLotMonthlyRevenue(supabase, lot_id),
+    enabled: !!lot_id
+  })
+  const { data: totalBookings } = useQuery({
+    queryKey: ['totalBooking', lot_id],
+    queryFn: () => getLotOrdersCount(supabase, lot_id),
+    enabled: !!lot_id
+  })
+  const { data: bookingTypeCount } = useQuery({
+    queryKey: ['bookingTypeCount', lot_id],
+    queryFn: () => getLotOrdersCountByType(supabase, lot_id),
+    enabled: !!lot_id
+  })
 
   return (
-    <div>
-      <h3 className="text-xl font-semibold mb-6">Financial Overview</h3>
+    <div className="space-y-6">
+      <h3 className="text-xl font-semibold">Financial Overview</h3>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <Card className="border-l-4 border-l-green-500">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm text-gray-500">Total Revenue</p>
                 <p className="text-2xl font-bold text-green-600">
-                  {formatCurrency(accountingInfo.total_revenue)}
+                  {totalRevenue && (
+                    formatCurrency(totalRevenue)
+                  )}
                 </p>
               </div>
               <TrendingUp className="w-8 h-8 text-green-500" />
@@ -65,7 +64,7 @@ export default function Accounting() {
               <div>
                 <p className="text-sm text-gray-500">Monthly Revenue</p>
                 <p className="text-2xl font-bold text-blue-600">
-                  {formatCurrency(accountingInfo.monthly_revenue)}
+                  {monthlyRevenue && formatCurrency(monthlyRevenue)}
                 </p>
               </div>
               <BarChart3 className="w-8 h-8 text-blue-500" />
@@ -79,7 +78,7 @@ export default function Accounting() {
               <div>
                 <p className="text-sm text-gray-500">Total Bookings</p>
                 <p className="text-2xl font-bold text-purple-600">
-                  {accountingInfo.total_bookings}
+                  {totalBookings}
                 </p>
               </div>
               <Car className="w-8 h-8 text-purple-500" />
@@ -87,7 +86,7 @@ export default function Accounting() {
           </CardContent>
         </Card>
 
-        <Card className="border-l-4 border-l-orange-500">
+        {/* <Card className="border-l-4 border-l-orange-500">
           <CardContent className="p-4">
             <div className="flex items-center justify-between">
               <div>
@@ -99,53 +98,16 @@ export default function Accounting() {
               <PieChart className="w-8 h-8 text-orange-500" />
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
-
+      
+      <LotMonthlyBookingChart lot_id={lot_id} />
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
-              Payment Summary
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Average Booking Value</span>
-              <span className="font-semibold">
-                {formatCurrency(accountingInfo.average_booking_value)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Pending Payments</span>
-              <span className="font-semibold text-yellow-600">
-                {accountingInfo.pending_payments}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Refunds Issued</span>
-              <span className="font-semibold text-red-600">
-                {accountingInfo.refunds_issued}
-              </span>
-            </div>
-            <Separator />
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Weekly Revenue</span>
-              <span className="font-semibold">
-                {formatCurrency(accountingInfo.weekly_revenue)}
-              </span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-600">Daily Revenue</span>
-              <span className="font-semibold">
-                {formatCurrency(accountingInfo.daily_revenue)}
-              </span>
-            </div>
-          </CardContent>
-        </Card>
+        {bookingTypeCount && (
+          <LotBookingTypeChart countData={bookingTypeCount} />
+        )}
 
-        <Card>
+        {/* <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Clock className="w-5 h-5" />
@@ -177,7 +139,7 @@ export default function Accounting() {
               </p>
             </div>
           </CardContent>
-        </Card>
+        </Card> */}
       </div>
     </div>
   );

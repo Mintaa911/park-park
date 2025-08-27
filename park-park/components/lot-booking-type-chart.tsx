@@ -17,39 +17,48 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { OrderTypeDataItem } from "@/types";
-// import { useQuery } from "@tanstack/react-query";
-// import { useState } from "react";
-// import { getOrderTypeByMonth } from "@/lib/supabase/queries/order";
-// import { createClient } from "@/lib/supabase/client";
-// import { Skeleton } from "@/components/ui/skeleton";
-
-export const description = "A radial chart with stacked sections";
 
 const chartConfig = {
-  desktop: {
-    label: "Desktop",
+  event: {
+    label: "Event",
     color: "var(--chart-1)",
   },
-  mobile: {
-    label: "Mobile",
+  regular: {
+    label: "Regular",
     color: "var(--chart-2)",
   },
 } satisfies ChartConfig;
 
-interface Props {
-  data: OrderTypeDataItem[];
-  month: string;
+interface CountItem {
+  is_event: boolean;
+  total: number;
 }
 
-export function BookingTypeChart({ data, month }: Props) {
-  const bookingType = data;
+interface Props {
+  countData: CountItem[];
+}
+
+export function LotBookingTypeChart({ countData }: Props) {
+  // Normalize input into chart data { Event, Regular }
+  const eventCount =
+    countData.find((item) => item.is_event === true)?.total ?? 0;
+  const regularCount =
+    countData.find((item) => item.is_event === false)?.total ?? 0;
+
+  const chartData = [
+    {
+      Event: eventCount,
+      Regular: regularCount,
+    },
+  ];
+
+  const total = eventCount + regularCount;
 
   return (
-    <Card className="flex flex-col ">
+    <Card className="flex flex-col">
       <CardHeader className="items-center pb-0">
         <CardTitle>Regular vs Event Bookings</CardTitle>
-        <CardDescription>{month}</CardDescription>
+        <CardDescription>Overview</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-1 items-center pb-0">
         <ChartContainer
@@ -57,7 +66,7 @@ export function BookingTypeChart({ data, month }: Props) {
           className="mx-auto aspect-square w-full max-w-[250px]"
         >
           <RadialBarChart
-            data={bookingType}
+            data={chartData}
             endAngle={180}
             innerRadius={80}
             outerRadius={130}
@@ -77,10 +86,7 @@ export function BookingTypeChart({ data, month }: Props) {
                           y={(viewBox.cy || 0) - 16}
                           className="fill-foreground text-2xl font-bold"
                         >
-                          {bookingType && bookingType[0]
-                            ? (Number(bookingType[0].Event) || 0) +
-                              (Number(bookingType[0].Regular) || 0)
-                            : 0}
+                          {total}
                         </tspan>
                         <tspan
                           x={viewBox.cx}
@@ -99,14 +105,14 @@ export function BookingTypeChart({ data, month }: Props) {
               dataKey="Event"
               stackId="a"
               cornerRadius={5}
-              fill="var(--color-desktop)"
+              fill="var(--chart-1)"
               className="stroke-transparent stroke-2"
             />
             <RadialBar
               dataKey="Regular"
-              fill="var(--color-mobile)"
               stackId="a"
               cornerRadius={5}
+              fill="var(--chart-2)"
               className="stroke-transparent stroke-2"
             />
           </RadialBarChart>
@@ -114,10 +120,10 @@ export function BookingTypeChart({ data, month }: Props) {
       </CardContent>
       <CardFooter className="flex-col gap-2 text-sm">
         <div className="flex items-center gap-2 leading-none font-medium">
-          Trending up by 8.2% this month <TrendingUp className="h-4 w-4" />
+          Trending up by 8.2% <TrendingUp className="h-4 w-4" />
         </div>
         <div className="text-muted-foreground leading-none">
-          Showing top lots by revenue
+          Showing event vs regular bookings
         </div>
       </CardFooter>
     </Card>

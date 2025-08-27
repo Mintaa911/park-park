@@ -222,7 +222,7 @@ export default function ParkingLotsPage() {
                   </TabsContent>
 
                   <TabsContent value="accounting" className="p-6">
-                    <Accounting />
+                    <Accounting lot_id={selectedLot.lot_id} />
                   </TabsContent>
 
                   <TabsContent value="event" className="p-6">

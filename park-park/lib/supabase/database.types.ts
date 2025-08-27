@@ -340,7 +340,17 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_orders_count_by_schedule_type: {
+        Args: { lot: string }
+        Returns: {
+          is_event: boolean
+          total: number
+        }[]
+      }
+      get_server_time: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       lot_status: "OPEN" | "CLOSED"
