@@ -28,6 +28,12 @@ export async function POST(request: Request) {
     return new Response(`Webhook Error: ${err.message}`, { status: 400 });
   }
 
+  const { data: serverTime, error } = await supabase.rpc("get_server_time");
+
+  if (error) {
+    throw error;
+  }
+
   if (event.type === 'payment_intent.succeeded') {
     const paymentIntent = event.data.object as Stripe.PaymentIntent;
     const metadata = paymentIntent.metadata;
@@ -43,7 +49,7 @@ export async function POST(request: Request) {
       total_amount: (paymentIntent.amount/100),
       price_tier: metadata.price_tier,
       payment_status: 'PAID',
-      start_time: new Date().toISOString(),
+      start_time: "now()",
       stripe_payment_intent_id: paymentIntent.id,
     });
 
@@ -54,6 +60,7 @@ export async function POST(request: Request) {
 
     // Send confirmation email
     try {
+
       await sendEmail(
         metadata.email,
         'Parking Pass',
@@ -62,9 +69,9 @@ export async function POST(request: Request) {
           stripe_payment_id: paymentIntent.id,
           lot_name: metadata.lot_name,
           location: metadata.location,
-          start_time: new Date().toISOString(),
+          start_time: serverTime.toISOString(),
           end_time: new Date(
-            new Date().getTime() + (1000 * 60 * 60 * Number(metadata?.maxHour))
+            new Date(serverTime).getTime() + (1000 * 60 * 60 * Number(metadata?.maxHour))
           ).toISOString(),
           session_id: paymentIntent.id,
           amount_paid: (paymentIntent.amount/100).toString(),

@@ -102,6 +102,15 @@ export default function CheckoutPage() {
     },
   });
 
+  const { data: timeData, isLoading: timeLoading, error: timeError } = useQuery({
+    queryKey: ['time'],
+    queryFn: async (): Promise<string> => {
+      const res = await fetch(`/api/time`)
+      if (!res.ok) throw new Error('Error fetching time')
+      return res.json()
+    }
+  });
+
   const createPaymentIntent = async () => {
     if (!priceTier || !lot) return;
     try {
@@ -194,14 +203,15 @@ export default function CheckoutPage() {
               </h4>
             </div>
             <div className="flex gap-2 items-center">
-              <p>{formatTime(new Date().toISOString())}</p>
+              <p>{timeData ? formatTime(new Date(timeData).toISOString()) : ''}</p>
               <ArrowRight className="w-4 h-4" />
               <p>
-                {formatTime(
-                  new Date(
-                    Date.now() + 1000 * 60 * 60 * priceTier.maxHour
-                  ).toISOString()
-                )}
+                {timeData ?
+                  formatTime(
+                    new Date(
+                      new Date(timeData).getTime() + 1000 * 60 * 60 * priceTier.maxHour
+                    ).toISOString()
+                  ) : ''}
               </p>
             </div>
           </div>

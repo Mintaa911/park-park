@@ -103,7 +103,6 @@ export function fromDatetimeLocalValue(value: Date): string {
 
 export function formatDate(date: Date | string): string {
   const d = new Date(date);
-  
   const options: Intl.DateTimeFormatOptions = {
     weekday: 'short',
     month: 'long',
@@ -111,8 +110,9 @@ export function formatDate(date: Date | string): string {
     year: 'numeric',
     hour: 'numeric',
     minute: '2-digit',
-    hour12: true
+    hour12: true,
+    timeZone: 'UTC', // ✅ ensures consistent server/UTC time
   };
-  
-  return d.toLocaleDateString('en-US', options);
+
+  return d.toLocaleString('en-US', options);
 }

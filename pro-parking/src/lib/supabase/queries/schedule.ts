@@ -10,8 +10,8 @@ export async function getSchedulesByDay(client: TypedSupabaseClient, date: Date,
         `)
         .eq('lot_id', lot_id)
         .eq('is_event', true)
-        .lte('event_start', date.toISOString())
-        .gte('event_end', date.toISOString())
+        .lte('event_start', "now()")
+        .gte('event_end', "now()")
         .is('deleted_at', null)
 
 

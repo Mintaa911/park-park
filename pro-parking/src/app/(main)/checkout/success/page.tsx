@@ -14,7 +14,6 @@ export default function SuccessPage() {
     const searchParams = useSearchParams();
     const paymentIntentId = searchParams.get('session_id');
 
-
     const { data: order, isLoading } = useQuery({
         queryKey: ['orders'],
         queryFn: async () => {
@@ -95,10 +94,10 @@ export default function SuccessPage() {
                                         <div className="flex flex-col items-center text-center">
                                             <span className="text-xs text-green-700 font-semibold uppercase tracking-wider">Park After</span>
                                             <span className="text-xl font-bold text-green-900 mt-1">
-                                                {new Date(order.start_time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                                                {new Date(new Date(order.start_time).getTime()).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit',  })}
                                             </span>
                                             <p className="text-xs text-green-700 mt-1">
-                                                {new Date(order.start_time).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
+                                                {new Date(new Date(order.start_time).getTime()).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' })}
                                             </p>
                                         </div>
                                         <div className="flex flex-col items-center">

@@ -1,22 +1,16 @@
-import { getSchedulesByDay } from "@/lib/supabase/queries/schedule"
 import { createClient } from "@/lib/supabase/server"
 import { NextResponse } from "next/server"
 
 
 export async function GET(request: Request) {
-  const { searchParams } = new URL(request.url)
-  const lotId = searchParams.get('lot_id')
-
   const supabase = await createClient()
 
   try {
-    const { data: serverTime, error } = await supabase.rpc("get_server_time");
+    const { data, error } = await supabase.rpc("get_server_time");
 
     if (error) {
       throw error;
     }
-
-    const data = await getSchedulesByDay(supabase, new Date(serverTime), lotId || '')
     return NextResponse.json(data)
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

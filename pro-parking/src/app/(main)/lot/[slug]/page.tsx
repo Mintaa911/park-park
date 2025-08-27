@@ -31,6 +31,15 @@ export default function ParkingLotPage() {
     }
   });
 
+  const { data: timeData } = useQuery({
+    queryKey: ['time'],
+    queryFn: async (): Promise<string> => {
+      const res = await fetch(`/api/time`)
+      if (!res.ok) throw new Error('Error fetching time')
+      return res.json()
+    }
+  });
+
   const schedules = useQuery({
     queryKey: ['schedules', lotSlug],
     queryFn: async (): Promise<ParkingScheduleFull[]> => {
@@ -43,7 +52,7 @@ export default function ParkingLotPage() {
 
   useEffect(() => {
     let first
-    if( schedules.data && schedules.data.length > 0) {
+    if (schedules.data && schedules.data.length > 0) {
       first = schedules.data[0].price_tiers?.[0]?.price_id
       setScheduleId(schedules.data[0].schedule_id)
     }
@@ -78,7 +87,6 @@ export default function ParkingLotPage() {
       </div>
     );
   }
-
 
   return (
     <div className="min-h-screen">
@@ -181,15 +189,16 @@ export default function ParkingLotPage() {
                           </h4>
                         </div>
                         <div className="flex gap-2 items-center justify-between text-sm md:text-base">
-                          <p>{formatTime(new Date().toISOString())}</p>
+                          <p>{timeData ? formatTime(new Date(timeData).toISOString()) : ''}</p>
                           <ArrowRight className="w-4 h-4" />
                           <p>
-                            {formatTime(
-                              new Date(
-                                Date.now() +
-                                1000 * 60 * 60 * price_tier.maxHour
-                              ).toISOString()
-                            )}
+                            {timeData ?
+                              formatTime(
+                                new Date(
+                                  Date.now() +
+                                  1000 * 60 * 60 * price_tier.maxHour
+                                ).toISOString()
+                              ) : ''}
                           </p>
                         </div>
                       </div>
