@@ -116,3 +116,25 @@ export function formatDate(date: Date | string): string {
 
   return d.toLocaleString('en-US', options);
 }
+
+export function validateLicense(val: string): boolean {
+  // Letters (A-Z, case-insensitive), Numbers, Hyphens, Spaces
+  return /^[A-Za-z0-9\- ]{1,10}$/.test(val);
+};
+
+export function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 10); // max 10 digits
+  const parts = [digits.slice(0, 3), digits.slice(3, 6), digits.slice(6, 10)];
+  if (!parts[0]) return "";
+  let formatted = `(${parts[0]}`;
+  if (parts[0].length === 3) formatted += ") ";
+  if (parts[1]) formatted += parts[1];
+  if (parts[1]?.length === 3 && parts[2]) formatted += "-";
+  if (parts[2]) formatted += parts[2];
+  return formatted;
+}
+
+export function validatePhone (val: string): boolean {
+  const digits = val.replace(/\D/g, ""); // strip non-digits
+  return digits.length === 10; // must be exactly 10 digits
+};

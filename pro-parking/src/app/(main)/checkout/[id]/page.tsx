@@ -23,7 +23,7 @@ import { ArrowLeft, CreditCard, ArrowRight } from "lucide-react";
 import { loadStripe } from "@stripe/stripe-js";
 import { Elements } from "@stripe/react-stripe-js";
 import { CheckoutForm } from "./checkout-form";
-import { formatCurrency, formatTime } from "@/lib/utils";
+import { formatCurrency, formatPhone, formatTime, validateLicense, validatePhone } from "@/lib/utils";
 
 import { STATES } from "@/lib/constants";
 import {
@@ -49,12 +49,17 @@ const checkoutSchema = z.
     email: z.email("Invalid email address"),
     phone: z
       .string()
-      .min(10, "Phone number must be at least 10 digits")
-      .regex(/^[0-9]+$/, "Phone number must contain only digits"),
+      .refine(validatePhone, {
+        message: "Phone number must be 10 digits.",
+      }),
     licensePlate: z
       .string()
       .min(2, "License plate must be at least 2 characters")
-      .max(10, "License plate must be at most 10 characters"),
+      .max(10, "License plate must be at most 10 characters")
+      .refine(validateLicense, {
+        message:
+          "License plate must be 1–10 characters and can only contain letters, numbers, hyphens, or spaces.",
+      }),
     licenseState: z.string().min(2, "Please select a state"),
   })
 
@@ -102,7 +107,7 @@ export default function CheckoutPage() {
     },
   });
 
-  const { data: timeData, isLoading: timeLoading, error: timeError } = useQuery({
+  const { data: timeData } = useQuery({
     queryKey: ['time'],
     queryFn: async (): Promise<string> => {
       const res = await fetch(`/api/time`)
@@ -253,7 +258,16 @@ export default function CheckoutPage() {
                         <FormItem>
                           <FormLabel>Phone Number *</FormLabel>
                           <FormControl>
-                            <Input type="tel" placeholder="(555) 123-4567" {...field} />
+                            <Input
+                              type="tel"
+                              placeholder="(555) 123-4567"
+                              {...field}
+                              value={field.value || ""}
+                              onChange={(e) => {
+                                const formatted = formatPhone(e.target.value);
+                                field.onChange(formatted); // update RHF state with formatted value
+                              }}
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -269,7 +283,17 @@ export default function CheckoutPage() {
                           <FormItem>
                             <FormLabel>License Plate *</FormLabel>
                             <FormControl>
-                              <Input placeholder="ABC123" {...field} />
+                              <Input
+                                placeholder="ABC123"
+                                {...field}
+                                onChange={(e) => {
+                                  const cleaned = e?.target.value
+                                    .toUpperCase()
+                                    .replace(/[^A-Z0-9- ]/g, "")
+                                    .slice(0, 10);
+                                  field.onChange(cleaned);
+                                }}
+                              />
                             </FormControl>
                             <FormMessage />
                           </FormItem>
