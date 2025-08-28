@@ -51,6 +51,9 @@ export default function ParkingLotsPage() {
     enabled: !!user?.id,
   });
 
+
+
+
   useEffect(() => {
     if (query.data && query.data.length > 0) {
       setLots(query.data || []);

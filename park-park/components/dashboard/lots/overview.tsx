@@ -11,13 +11,16 @@ import { z } from "zod";
 import FileUpload from "@/components/file-upload";
 import { useState } from "react";
 import { createClient } from "@/lib/supabase/client";
-import { useQuery, useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
+import { useDeleteMutation, useQuery, useUpdateMutation } from "@supabase-cache-helpers/postgrest-react-query";
 import { formatTime, getImageUrl } from "@/lib/utils";
 import GenerateQrCode from "@/components/generate-qr-code";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQuery as useTankQuery, useQueryClient } from "@tanstack/react-query";
 import LotForm from "./create-lot-form";
 import { getLotSchedulesCount } from "@/lib/supabase/queries/schedule";
 import { getOrdersCount } from "@/lib/supabase/queries/order";
+import { VenueForm } from "./venue-form";
+import { getLotVenue } from "@/lib/supabase/queries/venue";
+import { toast } from "sonner";
 
 // Zod schema for form validation
 const uploadImagesSchema = z.object({
@@ -43,6 +46,12 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
   const { count: scheduleCount } = useQuery(getLotSchedulesCount(supabase, selectedLot.lot_id))
   const { count: bookingCount } = useQuery(getOrdersCount(supabase, selectedLot.lot_id))
 
+  const { data: lotVenues } = useTankQuery({
+    queryKey: ["lotVenues"],
+    queryFn: () => getLotVenue(supabase, selectedLot.lot_id),
+    enabled: !!selectedLot.lot_id
+  })
+
   const { mutateAsync: updateLot } = useUpdateMutation(
     supabase.from('lots'),
     ['lot_id'],
@@ -54,6 +63,21 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
       },
       onError: (error) => {
         console.error("Error updating lot", error);
+      }
+    }
+  )
+
+  const { mutateAsync: deleteVenue } = useDeleteMutation(
+    supabase.from('lot_venues'),
+    ["lot_id", "venue_id"],
+    'lot_id,venue_id',
+    {
+      onSuccess: () => {
+        toast.success('Venue deleted successfully')
+        queryClient.invalidateQueries({ queryKey: ["lotVenues"] })
+      },
+      onError: () => {
+        toast.error("Error deleting venue")
       }
     }
   )
@@ -111,6 +135,15 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
     setIsDialogOpen(false);
   };
 
+  const handleVenueDelete = (lot_id: string, venue_id: string) => {
+    deleteVenue(
+      {
+        venue_id,
+        lot_id
+      }
+    )
+  }
+
   return (
     <div className="grid lg:grid-cols-3 gap-6">
       {/* Main Information */}
@@ -124,6 +157,7 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
               Facility Images
             </h4>
             <div className="flex gap-2">
+              <VenueForm lotId={selectedLot.lot_id} />
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="mb-4">
@@ -236,19 +270,36 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
           </div>
         </div>
 
-        {/* Amenities */}
-        {selectedLot.amenities && (
+        <div className="grid md:grid-cols-2 gap-6">
+          {selectedLot.amenities && (
+            <div>
+              <h4 className="font-semibold text-gray-900 mb-3">Amenities</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedLot.amenities.map((amenity: string, index: number) => (
+                  <Badge key={index} variant="secondary" className="px-3 py-1">
+                    {amenity}
+                  </Badge>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div>
-            <h4 className="font-semibold text-gray-900 mb-3">Amenities</h4>
-            <div className="flex flex-wrap gap-2">
-              {selectedLot.amenities.map((amenity: string, index: number) => (
-                <Badge key={index} variant="secondary" className="px-3 py-1">
-                  {amenity}
+            <h4 className="font-semibold text-gray-900 mb-3">Venues</h4>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {lotVenues?.map((venue) => (
+                <Badge
+                  key={venue.venue_id}
+                  variant="secondary"
+                  onClick={() => handleVenueDelete(venue.lot_id, venue.venue_id)}
+                  className="cursor-pointer"
+                >
+                  {venue.name} ✕
                 </Badge>
               ))}
             </div>
           </div>
-        )}
+        </div>
       </div>
 
       {/* Quick Stats*/}

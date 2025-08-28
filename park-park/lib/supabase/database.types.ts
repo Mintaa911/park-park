@@ -16,21 +16,24 @@ export type Database = {
     Tables: {
       lot_venues: {
         Row: {
-          created_at: string
-          id: number
+          created_at: string | null
+          id: string | null
           lot_id: string
+          name: string | null
           venue_id: string
         }
         Insert: {
-          created_at?: string
-          id?: number
+          created_at?: string | null
+          id?: string | null
           lot_id: string
+          name?: string | null
           venue_id: string
         }
         Update: {
-          created_at?: string
-          id?: number
+          created_at?: string | null
+          id?: string | null
           lot_id?: string
+          name?: string | null
           venue_id?: string
         }
         Relationships: [
