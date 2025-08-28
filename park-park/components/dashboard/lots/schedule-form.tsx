@@ -209,7 +209,7 @@ export default function ScheduleForm({
               <Edit className="w-4 h-4" />
             </Button>
           ) : (
-            <Button>
+            <Button className="hover:bg-primary">
               <Plus className="w-4 h-4 mr-2" />
               Add Schedule
             </Button>
@@ -431,7 +431,7 @@ export default function ScheduleForm({
                 >
                   Cancel
                 </Button>
-                <Button type="submit">
+                <Button type="submit" className="hover:bg-primary">
                   {schedule?.schedule_id
                     ? "Update Schedule"
                     : "Create Schedule"}

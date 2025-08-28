@@ -68,7 +68,7 @@ export function getBookingStatusColor(status: string) {
 export function getPaymentStatusColor(status: string) {
   switch (status) {
     case 'PAID':
-      return 'bg-primary text-white';
+      return 'bg-primary text-white hover:bg-primary';
     case 'PENDING':
       return 'bg-yellow-100 text-yellow-800';
     case 'FAILED':

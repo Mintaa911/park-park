@@ -140,7 +140,7 @@ export default function Booking({ selectedLot }: { selectedLot: ParkingLot }) {
                         variant={currentPage === pageNum ? "default" : "outline"}
                         size="sm"
                         onClick={() => handlePageChange(pageNum)}
-                        className="w-8 h-8 p-0"
+                        className={`w-8 h-8 p-0 ${currentPage === pageNum ? "hover:bg-primary": ""} `}
                       >
                         {pageNum}
                       </Button>

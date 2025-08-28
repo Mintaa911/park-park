@@ -401,7 +401,7 @@ export default function LotForm({ userId, selectedLot }: CreateLotFormProps) {
                             <Button type="button" variant="outline" onClick={handleCancel}>
                                 Cancel
                             </Button>
-                            <Button type="submit" disabled={isSubmitting}>
+                            <Button type="submit" disabled={isSubmitting} className="hover:bg-primary">
                                 {isSubmitting ? "Processing..." : lotData ? "Update Parking Lot" : "Create Parking Lot"}
                             </Button>
                         </div>

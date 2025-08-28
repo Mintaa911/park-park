@@ -158,7 +158,7 @@ export default function EventForm({
               <Edit className="w-4 h-4" />
             </Button>
           ) : (
-            <Button variant={event ? "outline" : "default"}>
+            <Button variant={event ? "outline" : "default"} className="hover:bg-primary">
               <Plus className="w-4 h-4 mr-2" />
               Add Event
             </Button>
@@ -263,7 +263,7 @@ export default function EventForm({
                 >
                   Cancel
                 </Button>
-                <Button type="submit">Create Schedule</Button>
+                <Button type="submit" className="hover:bg-primary">Create Schedule</Button>
               </div>
             </form>
           </Form>

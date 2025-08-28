@@ -99,7 +99,7 @@ export default function PriceTierForm({ sechuledId, priceTier }: PriceTierFormPr
             <DialogTrigger asChild>
                 {priceTier ?
                     <Edit className="w-4 h-4" /> :
-                    <Button variant="default" size="sm">Add Price Tier</Button>
+                    <Button variant="default" size="sm" className="hover:bg-primary">Add Price Tier</Button>
                 }
             </DialogTrigger>
             <DialogContent>
@@ -144,7 +144,7 @@ export default function PriceTierForm({ sechuledId, priceTier }: PriceTierFormPr
                         />
                         <DialogFooter>
                             <Button variant="outline" onClick={() => setIsModalOpen(false)} type="button">Cancel</Button>
-                            <Button variant="default" type="submit" disabled={isCreatingPriceTier || isUpdatingPriceTier}>{isCreatingPriceTier || isUpdatingPriceTier ? "Submitting..." : "Submit"}</Button>
+                            <Button variant="default" type="submit" className="hover:bg-primary" disabled={isCreatingPriceTier || isUpdatingPriceTier}>{isCreatingPriceTier || isUpdatingPriceTier ? "Submitting..." : "Submit"}</Button>
                         </DialogFooter>
                     </form>
                 </Form>

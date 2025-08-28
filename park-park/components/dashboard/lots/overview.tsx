@@ -1,6 +1,6 @@
 import { ParkingLot, PickerFile } from "@/types";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ImageIcon, Star, Phone, MapPin, Clock, Upload } from "lucide-react";
+import { ImageIcon, Star, Phone, MapPin, Clock, Upload, X } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
@@ -58,7 +58,7 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
     'lot_id',
     {
       onSuccess: () => {
-        console.log("Lot updated successfully");
+        toast.success("Lot updated successfully!")
         queryClient.invalidateQueries({ queryKey: ['lots'] });
       },
       onError: (error) => {
@@ -74,8 +74,8 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
     {
       onSuccess: () => {
         toast.success('Venue deleted successfully')
-        queryClient.invalidateQueries({ queryKey: ["lotVenues"]})
-        queryClient.invalidateQueries({ queryKey: ["upcomingEvents"]})
+        queryClient.invalidateQueries({ queryKey: ["lotVenues"] })
+        queryClient.invalidateQueries({ queryKey: ["upcomingEvents"] })
       },
       onError: () => {
         toast.error("Error deleting venue")
@@ -122,6 +122,7 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
 
       form.reset();
       setIsDialogOpen(false);
+      setFiles([])
 
     } catch (error) {
       console.error("Error uploading files:", error);
@@ -145,6 +146,22 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
     )
   }
 
+  const handleDeleteImage = async (image: string) => {
+    try {
+      // Delete from Supabase storage
+      const { error } = await supabase.storage.from("lots").remove([image]);
+      if (error) throw error;
+      // Update lot by removing the deleted image
+      const updatedImages = selectedLot.images.filter((img) => img !== image);
+      await updateLot({ lot_id: selectedLot.lot_id, images: updatedImages });
+
+      toast.success("Image deleted successfully");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete image");
+    }
+  }
+
   return (
     <div className="grid lg:grid-cols-3 gap-6">
       {/* Main Information */}
@@ -159,7 +176,11 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
             </h4>
             <div className="flex gap-2">
               <VenueForm lotId={selectedLot.lot_id} />
-              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open)
+                setFiles([])
+                form.reset();
+              }}>
                 <DialogTrigger asChild>
                   <Button variant="outline" className="mb-4">
                     <Upload className="w-4 h-4 mr-2" />
@@ -203,6 +224,7 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
                         <Button
                           type="submit"
                           disabled={isSubmitting || files.length === 0}
+                          className="hover:bg-primary"
                         >
                           {isSubmitting ? "Uploading..." : "Upload Images"}
                         </Button>
@@ -214,14 +236,22 @@ export default function Overview({ selectedLot, userId }: OverviewProps) {
               <LotForm userId={userId} selectedLot={selectedLot} />
             </div>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 relative">
             {selectedLot.images.map((image: string, index: number) => (
-              <img
-                key={index}
-                src={getImageUrl(`lots/${image}`)}
-                alt={`${selectedLot.name} - Image ${index + 1}`}
-                className="w-64 h-32 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
-              />
+              <div key={index} className="relative group">
+                <img
+                  src={getImageUrl(`lots/${image}`)}
+                  alt={`${selectedLot.name} - Image ${index + 1}`}
+                  className="w-64 h-32 object-cover rounded-lg shadow-md hover:shadow-lg transition-shadow"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleDeleteImage(image)}
+                  className="absolute top-1 right-1 bg-white rounded-full p-1 shadow hover:bg-gray-100 hidden group-hover:block"
+                >
+                  <X className="w-4 h-4 text-red-500" />
+                </button>
+              </div>
             ))}
           </div>
         </div>
