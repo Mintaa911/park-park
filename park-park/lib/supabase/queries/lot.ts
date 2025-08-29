@@ -8,8 +8,8 @@ export function getLotsCount(client: TypedSupabaseClient) {
     return client.from('lots').select('*', { count: 'exact', head: true })
 }
 
-export async function getLotsBySupervisor(client: TypedSupabaseClient, user_id: string) {
-    const { data, error } = await client.from('lots').select('*').contains('supervisors', [user_id]);
+export async function getLotsBySupervisor(client: TypedSupabaseClient) {
+    const { data, error } = await client.from('lots').select('*');
     if (error) {
         throw error;
     }

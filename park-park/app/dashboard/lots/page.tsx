@@ -46,9 +46,8 @@ export default function ParkingLotsPage() {
   const supabase = createClient();
 
   const query = useQuery({
-    queryKey: ["lots", user?.id],
-    queryFn: () => getLotsBySupervisor(supabase, user?.id ?? ""),
-    enabled: !!user?.id,
+    queryKey: ["lots"],
+    queryFn: () => getLotsBySupervisor(supabase)
   });
 
 
@@ -58,15 +57,17 @@ export default function ParkingLotsPage() {
     if (query.data && query.data.length > 0) {
       setLots(query.data || []);
     }
-    if (query.data && query.data.length > 0 && !selectedLot) {
-      setSelectedLot(query.data[0]);
-    } else if (selectedLot) {
-      const lot = query.data?.find((lot) => lot.lot_id === selectedLot?.lot_id);
+    if (localStorage.getItem('lotId') && query.data && query.data.length > 0) {
+      const lot = query.data?.find((lot) => lot.lot_id === localStorage.getItem('lotId'));
       if (lot) {
-        setSelectedLot(lot);
+        setSelectedLot(lot)
       }
     }
-  }, [query, selectedLot]);
+    else if (query.data && query.data.length > 0 && !selectedLot) {
+      setSelectedLot(query.data[0]);
+      localStorage.setItem('lotId', query.data[0].lot_id)
+    }
+  }, [query]);
 
   const getStatusColor = (status: LotStatus) => {
     switch (status) {
@@ -108,10 +109,12 @@ export default function ParkingLotsPage() {
                 <Label htmlFor="lot-select">Choose Parking Lot</Label>
                 <Select
                   value={selectedLot?.lot_id}
-                  onValueChange={(value) =>
+                  onValueChange={(value) => {
+                    localStorage.setItem('lotId', value)
                     setSelectedLot(
                       lots.find((lot) => lot.lot_id === value) ?? null
                     )
+                  }
                   }
                 >
                   <SelectTrigger className="">
