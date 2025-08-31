@@ -76,8 +76,8 @@ export function VenueForm({ lotId }: { lotId: string }) {
     {
       onSuccess: () => {
         toast.success('Venue created successfully')
-        queryClient.invalidateQueries({ queryKey: ["lotVenues"]})
-        queryClient.invalidateQueries({ queryKey: ["upcomingEvents"]})
+        queryClient.invalidateQueries({ queryKey: ["lotVenues"] })
+        queryClient.invalidateQueries({ queryKey: ["upcomingEvents"] })
         setIsDialogOpen(false);
       },
       onError: () => {
@@ -135,12 +135,12 @@ export function VenueForm({ lotId }: { lotId: string }) {
 
             <div className="space-y-4 min-h-72">
               <FormLabel>Search Venue</FormLabel>
-              <Command className="h-64 border rounded-md p-2">
+              <Command className="h-64 border rounded-md py-2">
                 <CommandInput
                   placeholder="Search venues..."
                   value={search}
                   onValueChange={setSearch}
-                  className=" "
+                  className="border-none outline-none focus:outline-none focus:ring-0 focus:border-none px-2 py-1 rounded"
                 />
                 <CommandEmpty>
                   {isFetching ? "Searching..." : "No venues found"}

@@ -20,7 +20,7 @@ export default async function DashboardLayout({
   const user = await getUser(supabase);
   const queryClient = new QueryClient();
 
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !["OWNER", "ADMIN"].includes(user.role || '')) {
     redirect('/auth/login');
   }
 

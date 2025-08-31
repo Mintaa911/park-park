@@ -14,6 +14,35 @@ export type Database = {
   }
   public: {
     Tables: {
+      employees: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["Roles"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["Roles"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["Roles"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "employees_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       lot_venues: {
         Row: {
           created_at: string | null
@@ -358,7 +387,7 @@ export type Database = {
     Enums: {
       lot_status: "OPEN" | "CLOSED"
       payment_status: "PENDING" | "PAID"
-      Roles: "ADMIN" | "OWNER" | "CUSTOMER" | "SUPERVISOR"
+      Roles: "ADMIN" | "OWNER" | "CUSTOMER" | "SUPERVISOR" | "EMPLOYEE"
       vehicle_type: "STANDARD" | "OVERSIZE"
     }
     CompositeTypes: {
@@ -489,7 +518,7 @@ export const Constants = {
     Enums: {
       lot_status: ["OPEN", "CLOSED"],
       payment_status: ["PENDING", "PAID"],
-      Roles: ["ADMIN", "OWNER", "CUSTOMER", "SUPERVISOR"],
+      Roles: ["ADMIN", "OWNER", "CUSTOMER", "SUPERVISOR", "EMPLOYEE"],
       vehicle_type: ["STANDARD", "OVERSIZE"],
     },
   },

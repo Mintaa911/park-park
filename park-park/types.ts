@@ -7,7 +7,9 @@ export type TypedSupabaseClient = SupabaseClient<Database>;
 export enum UserRole {
     ADMIN = 'ADMIN',
     MANAGER = 'MANAGER',
-    ATTENDANT = 'ATTENDANT'
+    ATTENDANT = 'ATTENDANT',
+    OWNER = 'OWNER',
+    EMPLOYEE = 'EMPLOYEE'
 }
 
 export enum LotStatus {
@@ -19,6 +21,7 @@ export type ParkingLot = Tables<'lots'>;
 export type ParkingSchedule = Tables<'schedules'>;
 export type Order = Tables<'orders'>;
 export type PriceTier = Tables<'price_tiers'>
+export type User = Tables<'users'>
 
 
 export interface PickerFile extends File {

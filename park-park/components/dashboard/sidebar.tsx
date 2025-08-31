@@ -11,10 +11,12 @@ import {
   Car,
   ChevronDown,
   FileText,
+  Users,
 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import ProfileSettingsCard from './ProfileSettingsCard';
 import { Avatar, AvatarFallback, AvatarImage } from '@radix-ui/react-avatar';
+import { UserRole } from '@/types';
 
 
 interface SidebarItem {
@@ -190,6 +192,32 @@ export default function SidebarContent() {
             )}
           </div>
         ))}
+
+        {(user && user.role === UserRole.OWNER) && (
+          <div key={"Employee"}>
+            <div className="relative">
+              <Link
+                href={"/dashboard/employees"}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 group",
+                  isActive("/dashboard/employees")
+                    ? "bg-blue-100 text-blue-700 shadow-sm"
+                    : "text-gray-700 hover:bg-gray-100 hover:text-gray-900"
+                )}
+                onClick={() => {
+                  setSidebarOpen(false);
+                }}
+              >
+                <Users className={cn(
+                  "w-5 h-5 transition-colors",
+                  isActive("/dashboard/employees") ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+                )} />
+                <span className="flex-1">Employees</span>
+              </Link>
+            </div>
+          </div>
+        )}
+
       </nav>
 
 

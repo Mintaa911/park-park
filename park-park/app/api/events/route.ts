@@ -20,7 +20,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "Ticketmaster API error" }, { status: res.status })
     }
     const data = await res.json();
-    return NextResponse.json(data._embedded.venues)
+
+    if(data.page.totalElements > 0) return NextResponse.json(data._embedded.venues)
+
+    return NextResponse.json([])
   } catch (error) {
     console.error("Error:", error)
     return NextResponse.json({ error: 'Failed to fetch events' }, { status: 500 });
