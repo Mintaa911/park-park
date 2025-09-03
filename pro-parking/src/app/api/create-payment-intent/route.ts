@@ -10,7 +10,19 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { schedule, lot, customerInfo } = body;
+    const { schedule, lot, customerInfo, recaptchaToken } = body;
+
+
+    // Verify reCAPTCHA
+    const verifyRes = await fetch(
+      `https://www.google.com/recaptcha/api/siteverify?secret=${process.env.RECAPTCHA_SECRET_KEY}&response=${recaptchaToken}`,
+      { method: "POST" }
+    );
+    const recaptchaData = await verifyRes.json();
+  
+    if (!recaptchaData.success || recaptchaData.score < 0.7) {
+      return NextResponse.json({ error: "reCAPTCHA failed", score: recaptchaData.score }, { status: 400 });
+    }
 
     const supabase = await createClient()
 
@@ -41,7 +53,7 @@ export async function POST(req: NextRequest) {
     });
 
   } catch (error) {
-    console.log("Server Error:", error)
+    console.error('Payment intent error:', error);
     return NextResponse.json(
       { error: 'Unable to create payment intent' },
       { status: 500 }

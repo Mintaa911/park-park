@@ -12,6 +12,7 @@ import { cn, formatCurrency, formatTime, getImageUrl } from '@/lib/utils';
 import { ParkingLot, ParkingScheduleFull } from '@/types';
 import { useEffect, useState } from 'react';
 import * as ToggleGroup from '@radix-ui/react-toggle-group';
+import { useRecaptcha } from '@/hooks/useRecaptcha';
 
 
 
@@ -20,6 +21,7 @@ export default function ParkingLotPage() {
   const lotSlug = params.slug as string;
   const [priceId, setPriceId] = useState('')
   const [scheduleId, setScheduleId] = useState('')
+  const { getToken } = useRecaptcha();
 
 
   const { data: lot, isLoading: lotLoading, error: lotError } = useQuery({
@@ -61,6 +63,21 @@ export default function ParkingLotPage() {
       setPriceId(first);
     }
   }, [schedules]);
+
+
+  useEffect(() => {
+    const run = async () => {
+      const token = await getToken("page_load_lot");
+      if (!token) return;
+
+      await fetch("/api/recaptcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recaptchaToken: token }),
+      });
+    };
+    run();
+  }, [getToken]);
 
 
 

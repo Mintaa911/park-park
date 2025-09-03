@@ -38,6 +38,7 @@ import { ParkingLot, PriceTier } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
 
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(
@@ -72,6 +73,7 @@ export default function CheckoutPage() {
   const lotId = params.id as string;
   const scheduleId = searchParams.get("scheduleId") as string;
   const priceTierId = searchParams.get("priceTierId") as string;
+  const { getToken } = useRecaptcha();
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -119,6 +121,10 @@ export default function CheckoutPage() {
   const createPaymentIntent = async () => {
     if (!priceTier || !lot) return;
     try {
+
+      const token = await getToken("create_payment_intent");
+      if (!token) return;
+
       const response = await fetch("/api/create-payment-intent", {
         method: "POST",
         headers: {
@@ -135,6 +141,7 @@ export default function CheckoutPage() {
             name: lot.name,
           },
           customerInfo: form.getValues(),
+          recaptchaToken: token,
         }),
       });
 
