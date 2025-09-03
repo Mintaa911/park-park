@@ -16,6 +16,8 @@ import {
 } from "@/components/ui/card";
 import { PriceTier } from "@/types";
 import { useRouter } from "next/navigation";
+import { useRecaptcha } from "@/hooks/useRecaptcha";
+
 
 interface CheckoutFormProps {
   priceTier: PriceTier;
@@ -34,6 +36,7 @@ export function CheckoutForm({ customerInfo, priceTier }: CheckoutFormProps) {
   const elements = useElements();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { getToken } = useRecaptcha();
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("en-US", {
@@ -45,40 +48,65 @@ export function CheckoutForm({ customerInfo, priceTier }: CheckoutFormProps) {
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
 
-    if (!stripe || !elements) {
-      return;
-    }
+    if (!stripe || !elements) return;
 
     setLoading(true);
     setError(null);
 
-    // Use PaymentElement directly
-    const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      confirmParams: {
-        // Return URL or success redirect URL
-        return_url: `${window.location.origin}/checkout/success`,
-        payment_method_data: {
-          billing_details: {
-            email: customerInfo.email,
-            phone: customerInfo.phone,
+    try {
+      // 🔹 Get reCAPTCHA token (checkout_submit action)
+      const recaptchaToken = await getToken("checkout_submit");
+
+      if (!recaptchaToken) {
+        setError("Failed to verify security check");
+        setLoading(false);
+        return;
+      }
+
+      // 🔹 Send token to your backend for verification
+      const verifyRes = await fetch("/api/recaptcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ recaptchaToken, action: "checkout_submit" }),
+      });
+
+      const { success, score } = await verifyRes.json();
+      console.log(success, score)
+      if (!success || score < 0.9) {
+        setError("Suspicious activity detected, please try again.");
+        setLoading(false);
+        return;
+      }
+
+
+      // 🔹 Now confirm payment only after reCAPTCHA passes
+      const { error: stripeError, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          return_url: `${window.location.origin}/checkout/success`,
+          payment_method_data: {
+            billing_details: {
+              email: customerInfo.email,
+              phone: customerInfo.phone,
+            },
           },
         },
-      },
-      // Optional: prevent automatic redirect for manual handling
-      redirect: "if_required",
-    });
+        redirect: "if_required",
+      });
 
-    if (stripeError && stripeError.type !== "validation_error") {
-      setError(stripeError.message ?? "Payment failed");
-    } else if (paymentIntent) {
-      // Payment succeeded, handle success manually if needed
-      setTimeout(() => {
-        router.push(`/checkout/success?session_id=${paymentIntent.id}`);
-      }, 500);
+      if (stripeError && stripeError.type !== "validation_error") {
+        setError(stripeError.message ?? "Payment failed");
+      } else if (paymentIntent) {
+        setTimeout(() => {
+          router.push(`/checkout/success?session_id=${paymentIntent.id}`);
+        }, 500);
+      }
+    } catch (err) {
+      setError("Something went wrong");
     }
 
     setLoading(false);
+
   };
 
   return (
