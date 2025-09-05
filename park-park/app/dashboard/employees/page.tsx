@@ -1,7 +1,7 @@
 "use client"
 
 import { useState } from "react";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createClient } from "@/lib/supabase/client";
 import { getUsers, getUsersCount } from "@/lib/supabase/queries/user";
 
@@ -24,6 +24,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Users,
+  Trash,
 } from "lucide-react";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -38,6 +39,8 @@ export default function Employee() {
   const queryClient = useQueryClient()
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [deletingUser, setDeletingUser] = useState<User | null>(null);
+
 
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [newRole, setNewRole] = useState<string>("");
@@ -70,6 +73,34 @@ export default function Employee() {
     }
 
   )
+
+  const deleteUser = async (userId: string) => {
+    const res = await fetch("/api/delete-user", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ userId }),
+    });
+
+    if (!res.ok) {
+      const { error } = await res.json();
+      throw new Error(error || "Failed to delete user");
+    }
+
+    return res.json();
+  };
+
+  const { mutateAsync: deleteUserMutation } = useMutation({
+    mutationFn: deleteUser,
+    onSuccess: () => {
+      toast.success("User deleted successfully");
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+      queryClient.invalidateQueries({ queryKey: ["usersCount"] });
+    },
+    onError: (error) => {
+      console.error("Error deleting user", error);
+      toast.error("Error deleting user");
+    },
+  });
 
   const totalPages = totalCount ? Math.ceil(totalCount / ITEMS_PER_PAGE) : 0;
 
@@ -163,6 +194,13 @@ export default function Employee() {
                     >
                       <Edit className="w-4 h-4" />
                     </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => setDeletingUser(user)}
+                    >
+                      <Trash className="w-4 h-4 text-red-500" />
+                    </Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -180,7 +218,7 @@ export default function Employee() {
                   <span className="font-medium">{editingUser?.full_name}</span>
                 </p>
 
-                <Select  onValueChange={setNewRole}>
+                <Select onValueChange={setNewRole}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
@@ -273,6 +311,36 @@ export default function Employee() {
           </p>
         </div>
       )}
+
+      <Dialog open={!!deletingUser} onOpenChange={() => setDeletingUser(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete User</DialogTitle>
+          </DialogHeader>
+
+          <p className="text-gray-600">
+            Are you sure you want to delete{" "}
+            <span className="font-medium">{deletingUser?.full_name}</span>?
+            This action cannot be undone.
+          </p>
+
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeletingUser(null)}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              onClick={() => {
+                if (!deletingUser) return;
+                deleteUserMutation(deletingUser.user_id);
+                setDeletingUser(null);
+              }}
+            >
+              Delete
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
