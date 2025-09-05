@@ -19,7 +19,7 @@ export async function POST(req: NextRequest) {
       { method: "POST" }
     );
     const recaptchaData = await verifyRes.json();
-  
+
     if (!recaptchaData.success || recaptchaData.score < 0.7) {
       return NextResponse.json({ error: "reCAPTCHA failed", score: recaptchaData.score }, { status: 400 });
     }
@@ -28,7 +28,7 @@ export async function POST(req: NextRequest) {
 
     const { data, error } = await getPriceTierById(supabase, schedule.tierId)
 
-    if(error || !data) throw error
+    if (error || !data) throw error
 
     // Create a PaymentIntent with the order amount and currency
     const paymentIntent = await stripe.paymentIntents.create({
@@ -50,6 +50,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       clientSecret: paymentIntent.client_secret,
+    }, {
+      status: 200
     });
 
   } catch (error) {

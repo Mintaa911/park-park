@@ -39,6 +39,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { useRecaptcha } from "@/hooks/useRecaptcha";
+import { toast } from "sonner";
 
 // Initialize Stripe (you'll need to add your publishable key)
 const stripePromise = loadStripe(
@@ -74,6 +75,7 @@ export default function CheckoutPage() {
   const scheduleId = searchParams.get("scheduleId") as string;
   const priceTierId = searchParams.get("priceTierId") as string;
   const { getToken } = useRecaptcha();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<CheckoutFormData>({
     resolver: zodResolver(checkoutSchema),
@@ -121,7 +123,7 @@ export default function CheckoutPage() {
   const createPaymentIntent = async () => {
     if (!priceTier || !lot) return;
     try {
-
+      setLoading(true);
       const token = await getToken("create_payment_intent");
       if (!token) return;
 
@@ -145,11 +147,17 @@ export default function CheckoutPage() {
         }),
       });
 
-      const { clientSecret } = await response.json();
+      const { clientSecret, error } = await response.json();
+      if(error) {
+        toast("Failed to initialize payment. Please try again.");
+        return;
+      }
       setClientSecret(clientSecret);
     } catch (error) {
       console.error("Payment intent error:", error);
-      alert("Failed to initialize payment. Please try again.");
+      toast("Failed to initialize payment. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -350,6 +358,7 @@ export default function CheckoutPage() {
                       <Button
                         type="submit"
                         disabled={
+                          loading ||
                           !form.watch("email") ||
                           !form.watch("phone") ||
                           !form.watch("licensePlate") ||
@@ -358,7 +367,7 @@ export default function CheckoutPage() {
                         }
                         className="w-full"
                       >
-                        Continue to Payment
+                        {loading ? "Processing..." : "Continue to Payment"}
                       </Button>
                     )}
                   </form>

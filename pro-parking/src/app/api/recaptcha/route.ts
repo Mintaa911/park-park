@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
   const body = await request.json()
-  const { recaptchaToken } = body
+  const { recaptchaToken, action } = body
 
 
   try {
@@ -12,7 +12,15 @@ export async function POST(request: NextRequest) {
     const googleRes = await fetch(verificationURL, { method: "POST" });
     const googleData = await googleRes.json();
 
-    return NextResponse.json({ success: googleData.success, score: googleData.score });  
+    if(action === 'checkout_submit' && googleData.success && googleData.score > 0.8) {
+      return NextResponse.json({ success: googleData.success });  
+    }
+
+    if(action === 'page_load_lot' && googleData.success && googleData.score > 0.5) {
+      return NextResponse.json({ success: googleData.success });  
+    }
+
+    return NextResponse.json({ success: false });  
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {

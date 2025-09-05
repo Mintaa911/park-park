@@ -70,9 +70,9 @@ export function CheckoutForm({ customerInfo, priceTier }: CheckoutFormProps) {
         body: JSON.stringify({ recaptchaToken, action: "checkout_submit" }),
       });
 
-      const { success, score } = await verifyRes.json();
-      console.log(success, score)
-      if (!success || score < 0.9) {
+      const { success } = await verifyRes.json();
+
+      if (!success) {
         setError("Suspicious activity detected, please try again.");
         setLoading(false);
         return;
