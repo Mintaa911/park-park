@@ -70,10 +70,10 @@ export function SignUpForm({
         <div className="flex items-center justify-center">
             <div className="relative w-60 h-20  flex items-center justify-center">
               <Image
-                src="/parking.png"
+                src="/logo3.png"
                 alt="Park Park Logo"
-                width={100}
-                height={100}
+                width={50}
+                height={50}
                 className="rounded-full"
               />
             </div>
@@ -144,7 +144,7 @@ export function SignUpForm({
                 />
               </div>
               {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
+              <Button type="submit" className="w-full hover:bg-primary" disabled={isLoading}>
                 {isLoading ? "Creating an account..." : "Sign up"}
               </Button>
             </div>
